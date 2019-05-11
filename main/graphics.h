@@ -18,9 +18,12 @@ typedef uint16_t graphics_color_t;
 #define GRAPHICS_COLOR_BLUE GRAPHICS_COLOR(0, 0, 255)
 #define GRAPHICS_COLOR_WHITE GRAPHICS_COLOR(255, 255, 255)
 
+#define GRAPHICS_WIDTH ST7735S_WIDTH
+#define GRAPHICS_HEIGHT ST7735S_HEIGHT
+
 void graphics_init();
 
-void graphics_draw_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, graphics_color_t color);
+void graphics_draw_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t thickness, graphics_color_t color);
 void graphics_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, graphics_color_t color);
 
 void graphics_blit_bitmap(uint8_t bitmap[ST7735S_WIDTH * ST7735S_HEIGHT]);

@@ -1,21 +1,21 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/event_groups.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/event_groups.h>
 
-#include "esp_system.h"
-#include "esp_spi_flash.h"
-#include "esp_wifi.h"
-#include "esp_event_loop.h"
-#include "esp_log.h"
-#include "nvs_flash.h"
+#include <esp_system.h>
+#include <esp_spi_flash.h>
+#include <esp_wifi.h>
+#include <esp_event_loop.h>
+#include <esp_log.h>
+#include <nvs_flash.h>
 
-#include "driver/uart.h"
+#include <driver/uart.h>
 
-#include "lwip/err.h"
-#include "lwip/sys.h"
+#include <lwip/err.h>
+#include <lwip/sys.h>
 
 #include "m26.h"
 #include "mcp23008.h"
@@ -23,6 +23,10 @@
 
 #include "graphics.h"
 #include "input.h"
+
+#include "app/main.h"
+#include "app/launch/main.h"
+
 #include "ui/ui_button.h"
 #include "ui/ui.h"
 
@@ -262,12 +266,12 @@ void app_main() {
 	ui_init();
 
 	graphics_blit_bitmap(duk);
-	ui_item_t * button = ui_button_new("hi", 10, 10, 100, 20);
-	button->draw(button);
-	ui_item_free(button);
 	graphics_flip();
 
 	m26_init();
+	app_init();
+
+	app_launch_start();
 
 	while (1) {
 		input_step();

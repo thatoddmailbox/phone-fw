@@ -20,7 +20,7 @@ static void input_handle_change(uint8_t current_state, uint8_t button) {
 		.event_type = event_type,
 		.event_data = button
 	};
-	ui_handle_event(event);
+	ui_push_event(event);
 }
 
 void input_step() {

@@ -5,21 +5,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "ui/ui_screen.h"
+
 typedef struct ui_item {
 	uint8_t x, y;
 	uint8_t w, h;
 
 	bool can_focus;
 	bool focus;
+	bool visible;
 
 	void * metadata;
 
-	void (*activate)(struct ui_item * item); // , struct ui_screen * screen);
-	void (*update)(struct ui_item * item); // , struct ui_screen * screen);
-	void (*draw)(struct ui_item * item); // , struct ui_screen * screen);
+	void (*activate)(struct ui_item * item, ui_screen_t * screen);
+	void (*update)(struct ui_item * item, ui_screen_t * screen);
+	void (*draw)(struct ui_item * item, ui_screen_t * screen);
 	void (*free)(struct ui_item * item);
 } ui_item_t;
 
+ui_item_t * ui_item_new();
 void ui_item_free(ui_item_t * item);
 
 #endif

@@ -3,7 +3,7 @@
 
 #include <esp_log.h>
 
-// must match UI_BUTTON_* in ui.h!
+// must match UI_BUTTON_* in ui/ui_event.h!
 #define INPUT_SELECT (1 << 0)
 #define INPUT_DOWN (1 << 1)
 #define INPUT_RIGHT (1 << 2)
