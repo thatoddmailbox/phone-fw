@@ -1,6 +1,6 @@
 #include "input.h"
 
-#include "ui.h"
+#include "ui/ui.h"
 
 const char * INPUT_TAG = "input";
 
