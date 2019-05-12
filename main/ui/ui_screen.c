@@ -2,6 +2,9 @@
 
 #include "ui/ui_item.h"
 
+#include "graphics.h"
+#include "font/font.h"
+
 static void ui_screen_shift_focus(ui_screen_t * screen, int8_t direction) {
 	// find what's currently focused and move to the next/previous item
 	list_item_t * list_entry;
@@ -97,7 +100,7 @@ void ui_screen_draw(ui_screen_t * screen) {
 	graphics_fill_rect(0, 0, GRAPHICS_WIDTH, GRAPHICS_HEIGHT, screen->bg_color);
 
 	if (screen->title) {
-		graphics_fill_rect(0, 0, GRAPHICS_WIDTH, 20, GRAPHICS_COLOR_BLACK);
+		graphics_fill_rect(0, 0, GRAPHICS_WIDTH, 20, GRAPHICS_COLOR_GRAY);
 
 		// TODO: draw title
 	}

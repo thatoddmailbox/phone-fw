@@ -9,11 +9,17 @@ static void ui_button_update(struct ui_item * item, ui_screen_t * screen) {
 }
 
 static void ui_button_draw(struct ui_item * item, ui_screen_t * screen) {
+	ui_button_metadata_t * metadata = ((ui_button_metadata_t *) item->metadata);
+
 	graphics_fill_rect(item->x, item->y, item->w, item->h, GRAPHICS_COLOR_GREEN);
 	if (item->focus) {
 		graphics_draw_rect(item->x, item->y, item->w, item->h, 2, GRAPHICS_COLOR_BLUE);
 	} else {
 		graphics_draw_rect(item->x, item->y, item->w, item->h, 2, GRAPHICS_COLOR_BLACK);
+	}
+	
+	if (metadata->text) {
+		graphics_draw_text(metadata->text, item->x + item->w + 10, item->y + ((item->h - 18) / 2), &font_source_sans_16, GRAPHICS_COLOR_BLACK);
 	}
 }
 
