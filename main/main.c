@@ -67,7 +67,10 @@ void app_main() {
 	m26_init();
 
 	m26_gprs_activate("hologram");
-	m26_http_get("http://aserv-cloud.cloudapp.net/phone/ping.php");
+	// m26_http_get("http://aserv-cloud.cloudapp.net/phone/ping.php");
+	m26_dns_set("8.8.8.8", "8.8.8.4");
+	m26_tcp_open("studerfamily.us", 9999);
+	m26_tcp_close();
 	m26_gprs_deactivate();
 
 	app_init();

@@ -9,8 +9,12 @@ const char * command_at_cmee_2 = "AT+CMEE=2\n";
 const char * command_at_cops = "AT+COPS?\n";
 const char * command_at_gsn = "AT+GSN\n";
 const char * command_at_qiact = "AT+QIACT\n";
+const char * command_at_qiclose = "AT+QICLOSE\n";
 const char * command_at_qideact = "AT+QIDEACT\n";
+const char * command_at_qidnsip_1 = "AT+QIDNSIP=1\n";
 const char * command_at_qifgcnt_0 = "AT+QIFGCNT=0\n";
+const char * command_at_qilocip = "AT+QILOCIP\n";
+const char * command_at_qimux_0 = "AT+QIMUX=0\n";
 const char * command_at_qiregapp = "AT+QIREGAPP\n";
 
 char line_buffer[M26_LINE_BUFFER_SIZE];
@@ -91,6 +95,12 @@ void m26_init() {
 
 	// AT+CMEE=2 - verbose error
 	m26_send_command(command_at_cmee_2);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	// AT+QIMUX=0 - turn off connection multiplexing
+	m26_send_command(command_at_qimux_0);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
 	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
 	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
@@ -250,6 +260,72 @@ void m26_gprs_activate(char * apn) {
 
 	m26_get_line(5000); // blank
 	m26_get_line(5000); // OK
+
+	// wait a little
+	vTaskDelay(300 / portTICK_PERIOD_MS);
+
+	// query local ip (seems to be required for some reason?)
+	m26_send_command(command_at_qilocip);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // <ip address>
+}
+
+void m26_gprs_deactivate() {
+	// deactivate gprs context
+	m26_send_command(command_at_qideact);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(5000); // blank
+	m26_get_line(5000); // OK
+}
+
+void m26_dns_set(char * primary, char * secondary) {
+	// enable dns servers
+	m26_send_command(command_at_qidnsip_1);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(5000); // blank
+	m26_get_line(5000); // OK
+
+	// set dns servers
+	char set_command[64];
+	snprintf(set_command, 64, "AT+QIDNSCFG=\"%s\",\"%s\"\n", primary, secondary);
+	m26_send_command(set_command);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+}
+
+void m26_tcp_open(char * host, uint16_t port) {
+	m26_send_command("AT+QISTAT\n");
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(5000); // blank
+	m26_get_line(5000); // OK
+	m26_get_line(5000); // blank
+	m26_get_line(5000); // STATE: <state>
+
+	// open connection
+	char open_command[64];
+	snprintf(open_command, 64, "AT+QIOPEN=\"TCP\",\"%s\",\"%d\"\n", host, port);
+	m26_send_command(open_command);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(10000); // blank
+	m26_get_line(10000); // OK
+	m26_get_line(10000); // blank
+	m26_get_line(10000); // CONNECT OK
+}
+
+void m26_tcp_close() {
+	m26_send_command(command_at_qiclose);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
 }
 
 void m26_http_get(char * url) {
@@ -282,13 +358,4 @@ void m26_http_get(char * url) {
 		m26_get_line(10000); // idk
 		m26_get_line(10000); // idk
 	}
-}
-
-void m26_gprs_deactivate() {
-	// deactivate gprs context
-	m26_send_command(command_at_qideact);
-	vTaskDelay(10 / portTICK_PERIOD_MS);
-
-	m26_get_line(5000); // blank
-	m26_get_line(5000); // OK
 }

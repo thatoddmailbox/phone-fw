@@ -35,7 +35,13 @@ void m26_get_imei(char * imei); // must be at least 16 bytes long
 char * m26_get_operator();
 
 void m26_gprs_activate(char * apn);
-void m26_http_get(char * url);
 void m26_gprs_deactivate();
+
+void m26_dns_set(char * primary, char * secondary);
+
+void m26_tcp_open(char * host, uint16_t port);
+void m26_tcp_close();
+
+void m26_http_get(char * url);
 
 #endif
