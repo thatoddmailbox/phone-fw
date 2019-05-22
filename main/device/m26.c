@@ -19,7 +19,8 @@ const char * command_at_qiregapp = "AT+QIREGAPP\n";
 
 char line_buffer[M26_LINE_BUFFER_SIZE];
 
-char rx_buffer[M26_REPLY_BUFFER_SIZE];
+char tx_buffer[M26_TX_BUFFER_SIZE];
+char rx_buffer[M26_RX_BUFFER_SIZE];
 size_t rx_buffer_length = 0;
 
 void m26_init() {
@@ -122,8 +123,8 @@ size_t m26_get_line(uint16_t timeout) {
 		ESP_ERROR_CHECK(uart_get_buffered_data_len(M26_UART, &length));
 
 		// limit it to the space left in the rx buffer
-		if (length > (M26_REPLY_BUFFER_SIZE - rx_buffer_length)) {
-			length = (M26_REPLY_BUFFER_SIZE - rx_buffer_length);
+		if (length > (M26_RX_BUFFER_SIZE - rx_buffer_length)) {
+			length = (M26_RX_BUFFER_SIZE - rx_buffer_length);
 		}
 		length = uart_read_bytes(M26_UART, (uint8_t *) rx_buffer + rx_buffer_length, length, 100);
 
@@ -239,9 +240,8 @@ char * m26_get_operator() {
 
 void m26_gprs_activate(char * apn) {
 	// set apn
-	char setup_command[64];
-	snprintf(setup_command, 64, "AT+QICSGP=1,\"%s\"\n", apn);
-	m26_send_command(setup_command);
+	snprintf(tx_buffer, M26_TX_BUFFER_SIZE, "AT+QICSGP=1,\"%s\"\n", apn);
+	m26_send_command(tx_buffer);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
 
 	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
@@ -286,13 +286,12 @@ void m26_dns_set(char * primary, char * secondary) {
 	m26_send_command(command_at_qidnsip_1);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
 
-	m26_get_line(5000); // blank
-	m26_get_line(5000); // OK
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
 
 	// set dns servers
-	char set_command[64];
-	snprintf(set_command, 64, "AT+QIDNSCFG=\"%s\",\"%s\"\n", primary, secondary);
-	m26_send_command(set_command);
+	snprintf(tx_buffer, M26_TX_BUFFER_SIZE, "AT+QIDNSCFG=\"%s\",\"%s\"\n", primary, secondary);
+	m26_send_command(tx_buffer);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
 
 	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
@@ -300,18 +299,9 @@ void m26_dns_set(char * primary, char * secondary) {
 }
 
 void m26_tcp_open(char * host, uint16_t port) {
-	m26_send_command("AT+QISTAT\n");
-	vTaskDelay(10 / portTICK_PERIOD_MS);
-
-	m26_get_line(5000); // blank
-	m26_get_line(5000); // OK
-	m26_get_line(5000); // blank
-	m26_get_line(5000); // STATE: <state>
-
 	// open connection
-	char open_command[64];
-	snprintf(open_command, 64, "AT+QIOPEN=\"TCP\",\"%s\",\"%d\"\n", host, port);
-	m26_send_command(open_command);
+	snprintf(tx_buffer, M26_TX_BUFFER_SIZE, "AT+QIOPEN=\"TCP\",\"%s\",\"%d\"\n", host, port);
+	m26_send_command(tx_buffer);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
 
 	m26_get_line(10000); // blank
@@ -330,10 +320,9 @@ void m26_tcp_close() {
 
 void m26_http_get(char * url) {
 	// set url
-	char get_command[32];
-	snprintf(get_command, 32, "AT+QHTTPURL=%d,60\n", strlen(url));
+	snprintf(tx_buffer, M26_TX_BUFFER_SIZE, "AT+QHTTPURL=%d,60\n", strlen(url));
 
-	m26_send_command(get_command);
+	m26_send_command(tx_buffer);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
 
 	m26_get_line(M26_DEFAULT_TIMEOUT); // blank

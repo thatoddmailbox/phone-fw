@@ -17,9 +17,10 @@
 #define M26_TX 35
 #define M26_RX 18
 
+#define M26_TX_BUFFER_SIZE 256
 // line buffer cannot be larger than reply buffer!!
 #define M26_LINE_BUFFER_SIZE 256
-#define M26_REPLY_BUFFER_SIZE 256
+#define M26_RX_BUFFER_SIZE 256
 
 #define M26_DEFAULT_TIMEOUT 400
 
