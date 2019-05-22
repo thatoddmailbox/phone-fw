@@ -1,10 +1,16 @@
 #include "graphics.h"
 
-uint16_t graphics_buffer[ST7735S_WIDTH * ST7735S_HEIGHT];
+graphics_color_t graphics_buffer[ST7735S_WIDTH * ST7735S_HEIGHT];
 
 void graphics_init() {
-	memset(graphics_buffer, 0xFF, ST7735S_WIDTH * ST7735S_HEIGHT * 2);
+	memset(graphics_buffer, 0xFF, ST7735S_WIDTH * ST7735S_HEIGHT * sizeof(graphics_color_t));
 	graphics_flip();
+}
+
+void graphics_clear(graphics_color_t color) {
+	for (int i = 0; i < (sizeof(graphics_buffer)/sizeof(graphics_color_t)); i++) {
+		graphics_buffer[i] = color;
+	}
 }
 
 graphics_color_t graphics_get_pixel(uint8_t x, uint8_t y) {
