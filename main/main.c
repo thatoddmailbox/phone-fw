@@ -318,42 +318,6 @@ void app_main() {
 	// Install UART driver using an event queue here
 	ESP_ERROR_CHECK(uart_driver_install(GPS_UART, uart_buffer_size, uart_buffer_size, 10, &gps_uart_queue, 0));
 
-/*
-
-	ESP_LOGI("hi", "boonking pwrkey\n");
-
-	// low for 1s
-	// gpio_set_level(GSM_PWRKEY, 0);
-	// vTaskDelay(1100 / portTICK_PERIOD_MS);
-	// gpio_set_level(GSM_PWRKEY, 1);
-
-	ESP_LOGI("hi", "pwrkey boonked, trying to talk\n");
-	vTaskDelay(100 / portTICK_PERIOD_MS);
-
-	// serial comms
-
-	// while (1) {
-	char* test_str = "AT\n";
-	char* aux_uart_str = "AT+QEAUART=1\n";
-
-	ESP_LOGI("hi", "first AT\n");
-	uart_write_bytes(GSM_UART, (const char*)test_str, strlen(test_str));
-	ESP_ERROR_CHECK(uart_wait_tx_done(GSM_UART, 100));
-	vTaskDelay(4000 / portTICK_PERIOD_MS);
-	
-	ESP_LOGI("hi", "second AT\n");
-	uart_write_bytes(GSM_UART, (const char*)test_str, strlen(test_str));
-	ESP_ERROR_CHECK(uart_wait_tx_done(GSM_UART, 100));
-	vTaskDelay(4000 / portTICK_PERIOD_MS);
-	// }
-	
-	ESP_LOGI("hi", "extra uart AT\n");
-	uart_write_bytes(GSM_UART, (const char*)aux_uart_str, strlen(aux_uart_str));
-	ESP_ERROR_CHECK(uart_wait_tx_done(GSM_UART, 100));
-
-*/
-
-/*
 	while (1) {
 		uint8_t data[128];
 		size_t length = 0;
@@ -368,9 +332,8 @@ void app_main() {
 			printf("gpsyay: %s\n", (char *) data);
 		}
 		
-		vTaskDelay(1 / portTICK_PERIOD_MS);
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 	}
-*/
 
 	ESP_LOGI("hi", "done, starting softap i guess\n");
 

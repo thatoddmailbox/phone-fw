@@ -100,9 +100,8 @@ void ui_screen_draw(ui_screen_t * screen) {
 	graphics_fill_rect(0, 0, GRAPHICS_WIDTH, GRAPHICS_HEIGHT, screen->bg_color);
 
 	if (screen->title) {
-		graphics_fill_rect(0, 0, GRAPHICS_WIDTH, 20, GRAPHICS_COLOR_GRAY);
-
-		// TODO: draw title
+		graphics_fill_rect(0, 0, GRAPHICS_WIDTH, 20, GRAPHICS_COLOR_DARK_GRAY);
+		graphics_draw_text(screen->title, 5, (20 - 11) / 2, &font_source_sans_16, GRAPHICS_COLOR_WHITE);
 	}
 
 	if (screen->bg) {

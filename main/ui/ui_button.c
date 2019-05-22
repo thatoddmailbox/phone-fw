@@ -19,7 +19,7 @@ static void ui_button_draw(struct ui_item * item, ui_screen_t * screen) {
 	}
 	
 	if (metadata->text) {
-		graphics_draw_text(metadata->text, item->x + item->w + 10, item->y + ((item->h - 18) / 2), &font_source_sans_16, GRAPHICS_COLOR_BLACK);
+		graphics_draw_text(metadata->text, item->x + item->w + 10, item->y + ((item->h - 11) / 2) + 1, &font_source_sans_16, GRAPHICS_COLOR_BLACK);
 	}
 }
 
