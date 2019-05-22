@@ -12,9 +12,9 @@
 
 #include <driver/uart.h>
 
-#include "m26.h"
-#include "mcp23008.h"
-#include "st7735s.h"
+#include "device/m26.h"
+#include "device/mcp23008.h"
+#include "device/st7735s.h"
 
 #include "graphics.h"
 #include "input.h"

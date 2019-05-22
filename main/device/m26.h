@@ -1,5 +1,5 @@
-#ifndef _M26_H
-#define _M26_H
+#ifndef _DEVICE_M26_H
+#define _DEVICE_M26_H
 
 #include <stdint.h>
 #include <string.h>

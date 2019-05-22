@@ -1,4 +1,4 @@
-#include "m26.h"
+#include "device/m26.h"
 
 const char * M26_TAG = "m26";
 

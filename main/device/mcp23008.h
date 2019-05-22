@@ -1,5 +1,5 @@
-#ifndef _MCP23008_H
-#define _MCP23008_H
+#ifndef _DEVICE_MCP23008_H
+#define _DEVICE_MCP23008_H
 
 #include <stdint.h>
 

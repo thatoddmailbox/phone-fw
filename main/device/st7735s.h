@@ -1,5 +1,5 @@
-#ifndef _ST7735S_H
-#define _ST7735S_H
+#ifndef _DEVICE_ST7735S_H
+#define _DEVICE_ST7735S_H
 
 #include <stdint.h>
 #include <string.h>

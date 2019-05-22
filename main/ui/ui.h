@@ -5,7 +5,7 @@
 
 #include <esp_log.h>
 
-#include "mcp23008.h"
+#include "device/mcp23008.h"
 
 #include "ui/ui_event.h"
 #include "ui/ui_screen.h"

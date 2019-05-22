@@ -1,4 +1,4 @@
-#include "st7735s.h"
+#include "device/st7735s.h"
 
 const char * ST7735S_TAG = "st7735s";
 

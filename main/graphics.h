@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-#include "font/font.h"
+#include "device/st7735s.h"
 
-#include "st7735s.h"
+#include "font/font.h"
 
 typedef uint16_t graphics_color_t;
 
