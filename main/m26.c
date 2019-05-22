@@ -5,8 +5,13 @@ const char * M26_TAG = "m26";
 const char * command_at = "AT\n";
 const char * command_ate0 = "ATE0\n";
 const char * command_at_ccid = "AT+CCID\n";
+const char * command_at_cmee_2 = "AT+CMEE=2\n";
 const char * command_at_cops = "AT+COPS?\n";
 const char * command_at_gsn = "AT+GSN\n";
+const char * command_at_qiact = "AT+QIACT\n";
+const char * command_at_qideact = "AT+QIDEACT\n";
+const char * command_at_qifgcnt_0 = "AT+QIFGCNT=0\n";
+const char * command_at_qiregapp = "AT+QIREGAPP\n";
 
 char line_buffer[M26_LINE_BUFFER_SIZE];
 
@@ -18,15 +23,6 @@ void m26_init() {
     gpio_pad_select_gpio(M26_PWRKEY);
 	gpio_set_direction(M26_PWRKEY, GPIO_MODE_OUTPUT);
 	gpio_set_level(M26_PWRKEY, 1);
-
-	// mess with it a bit
-	// gpio_set_level(M26_PWRKEY, 0);
-	// vTaskDelay(1100 / portTICK_PERIOD_MS);
-	// gpio_set_level(M26_PWRKEY, 1);
-	// vTaskDelay(500 / portTICK_PERIOD_MS);
-	// gpio_set_level(M26_PWRKEY, 0);
-	// vTaskDelay(1100 / portTICK_PERIOD_MS);
-	// gpio_set_level(M26_PWRKEY, 1);
 	
 	// set up uart
 	const int uart_buffer_size = (1024 * 2);
@@ -61,6 +57,7 @@ void m26_init() {
 		vTaskDelay(1100 / portTICK_PERIOD_MS);
 		gpio_set_level(M26_PWRKEY, 1);
 		vTaskDelay(4000 / portTICK_PERIOD_MS);
+		vTaskDelay(4000 / portTICK_PERIOD_MS);
 	}
 
 	// poke it again
@@ -91,10 +88,22 @@ void m26_init() {
 	rx_buffer_length = 0;
 
 	ESP_LOGI(M26_TAG, "it's on\n");
+
+	// AT+CMEE=2 - verbose error
+	m26_send_command(command_at_cmee_2);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	// AT+QIFGCNT=0 - set context
+	m26_send_command(command_at_qifgcnt_0);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
 }
 
 size_t m26_get_line(uint16_t timeout) {
-	// ESP_LOGI(M26_TAG, "m26_get_line");
+	ESP_LOGI(M26_TAG, "m26_get_line");
 
 	uint16_t time_waited = 0;
 	while (time_waited < timeout) {
@@ -139,8 +148,8 @@ size_t m26_get_line(uint16_t timeout) {
 			}
 		}		
 		
-		vTaskDelay(1 / portTICK_PERIOD_MS);
-		time_waited += 1;
+		vTaskDelay(10 / portTICK_PERIOD_MS);
+		time_waited += 10;
 	}
 	
 	ESP_LOGI(M26_TAG, "m26_get_line timeout");
@@ -216,4 +225,70 @@ char * m26_get_operator() {
 	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
 
 	return result;
+}
+
+void m26_gprs_activate(char * apn) {
+	// set apn
+	char setup_command[64];
+	snprintf(setup_command, 64, "AT+QICSGP=1,\"%s\"\n", apn);
+	m26_send_command(setup_command);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	// start tcp/ip task
+	m26_send_command(command_at_qiregapp);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	// activate gprs context
+	m26_send_command(command_at_qiact);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(5000); // blank
+	m26_get_line(5000); // OK
+}
+
+void m26_http_get(char * url) {
+	// set url
+	char get_command[32];
+	snprintf(get_command, 32, "AT+QHTTPURL=%d,60\n", strlen(url));
+
+	m26_send_command(get_command);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // CONNECT
+
+	m26_send_command(url);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	// make get request
+	m26_send_command("AT+QHTTPGET=10\n");
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(10000); // blank
+	m26_get_line(10000); // OK
+
+	// read response
+	m26_send_command("AT+QHTTPREAD=10\n");
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	for (int i = 0; i < 10; i++) {
+		m26_get_line(10000); // idk
+		m26_get_line(10000); // idk
+	}
+}
+
+void m26_gprs_deactivate() {
+	// deactivate gprs context
+	m26_send_command(command_at_qideact);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(5000); // blank
+	m26_get_line(5000); // OK
 }

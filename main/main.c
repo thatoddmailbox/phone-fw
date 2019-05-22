@@ -65,6 +65,11 @@ void app_main() {
 	graphics_flip();
 
 	m26_init();
+
+	m26_gprs_activate("hologram");
+	m26_http_get("http://aserv-cloud.cloudapp.net/phone/ping.php");
+	m26_gprs_deactivate();
+
 	app_init();
 
 	app_launch_start();

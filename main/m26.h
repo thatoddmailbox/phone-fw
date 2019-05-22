@@ -21,7 +21,7 @@
 #define M26_LINE_BUFFER_SIZE 256
 #define M26_REPLY_BUFFER_SIZE 256
 
-#define M26_DEFAULT_TIMEOUT 250
+#define M26_DEFAULT_TIMEOUT 400
 
 void m26_init();
 
@@ -33,5 +33,9 @@ void m26_send_single_reply(const char * command);
 void m26_get_ccid(char * ccid); // must be at least 21 bytes long
 void m26_get_imei(char * imei); // must be at least 16 bytes long
 char * m26_get_operator();
+
+void m26_gprs_activate(char * apn);
+void m26_http_get(char * url);
+void m26_gprs_deactivate();
 
 #endif
