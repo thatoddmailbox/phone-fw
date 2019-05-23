@@ -21,7 +21,7 @@ void st7735s_init() {
         .max_transfer_sz = 38416 // should be 128*128*2?
     };
     spi_device_interface_config_t dev_cfg = {
-        .clock_speed_hz = 10*1000*1000,
+        .clock_speed_hz = 15*1000*1000,
         .mode = 0,
         .spics_io_num = -1,
         .queue_size = 7
