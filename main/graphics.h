@@ -7,6 +7,8 @@
 
 #include "font/font.h"
 
+#include "icon/icon.h"
+
 typedef uint16_t graphics_color_t;
 
 typedef struct {
@@ -48,6 +50,7 @@ graphics_metrics_t graphics_measure_text(char * string, const font_t * font);
 
 void graphics_draw_char(char c, uint8_t x, uint8_t y, const font_t * font, graphics_color_t color);
 void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font, graphics_color_t color);
+void graphics_draw_icon(uint8_t x, uint8_t y, const icon_t * icon);
 
 void graphics_blit_bitmap(uint8_t bitmap[ST7735S_WIDTH * ST7735S_HEIGHT]);
 

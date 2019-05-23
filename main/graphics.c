@@ -144,6 +144,16 @@ void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font
 	}
 }
 
+void graphics_draw_icon(uint8_t x, uint8_t y, const icon_t * icon) {
+	ESP_LOGI("graphics", "graphics_draw_icon");
+	for (size_t y_iter = 0; y_iter < icon->height; y_iter++) {
+		for (size_t x_iter = 0; x_iter < icon->width; x_iter++) {
+			uint16_t data_index = 2 * ((y_iter * icon->width) + x_iter);
+			graphics_set_pixel(x + x_iter, y + y_iter, (((uint16_t) icon->data[data_index + 1]) << 8) | (((uint16_t) icon->data[data_index]) & 0xFF));
+		}
+	}
+}
+
 void graphics_blit_bitmap(uint8_t bitmap[ST7735S_WIDTH * ST7735S_HEIGHT]) {
 	// this is BAD and relies on the bitmap having been swizzled
 	memcpy(graphics_buffer, bitmap, ST7735S_WIDTH * ST7735S_HEIGHT * 2);

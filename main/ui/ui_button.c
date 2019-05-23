@@ -11,7 +11,12 @@ static void ui_button_update(struct ui_item * item, ui_screen_t * screen) {
 static void ui_button_draw(struct ui_item * item, ui_screen_t * screen) {
 	ui_button_metadata_t * metadata = ((ui_button_metadata_t *) item->metadata);
 
-	graphics_fill_rect(item->x, item->y, item->w, item->h, GRAPHICS_COLOR_GREEN);
+	if (metadata->icon) {
+		graphics_draw_icon(item->x, item->y, metadata->icon);
+	} else {
+		graphics_fill_rect(item->x, item->y, item->w, item->h, GRAPHICS_COLOR_GREEN);
+	}
+
 	if (item->focus) {
 		graphics_draw_rect(item->x, item->y, item->w, item->h, 2, GRAPHICS_COLOR_BLUE);
 	} else {
@@ -33,7 +38,7 @@ static void ui_button_free(struct ui_item * item) {
 	}
 }
 
-ui_item_t * ui_button_new(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h, void (*click)(ui_item_t * button, ui_screen_t * screen)) {
+ui_item_t * ui_button_new(char * text, const icon_t * icon, uint8_t x, uint8_t y, uint8_t w, uint8_t h, void (*click)(ui_item_t * button, ui_screen_t * screen)) {
 	ui_item_t * item = ui_item_new();
 	item->x = x;
 	item->y = y;
@@ -47,6 +52,7 @@ ui_item_t * ui_button_new(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t 
 
 	ui_button_metadata_t * metadata = calloc(1, sizeof(ui_button_metadata_t));
 	metadata->text = strdup(text);
+	metadata->icon = icon;
 	metadata->click = click;
 	item->metadata = metadata;
 

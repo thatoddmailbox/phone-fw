@@ -65,17 +65,17 @@ void app_main() {
 	graphics_draw_text("Loading...", 10, 10, &font_source_sans_16, GRAPHICS_COLOR_BLACK);
 	graphics_flip();
 
-	m26_init();
+	// m26_init();
 
-	m26_gprs_activate("hologram");
-	m26_dns_set("8.8.8.8", "8.8.8.4");
+	// m26_gprs_activate("hologram");
+	// m26_dns_set("8.8.8.8", "8.8.8.4");
 
-	// m26_http_get("http://aserv-cloud.cloudapp.net/phone/ping.php");
-	// m26_tcp_open("studerfamily.us", 9999);
-	// m26_tcp_write("Yay it works!\n", 14);
-	// m26_tcp_close();
+	// // m26_http_get("http://aserv-cloud.cloudapp.net/phone/ping.php");
+	// // m26_tcp_open("studerfamily.us", 9999);
+	// // m26_tcp_write("Yay it works!\n", 14);
+	// // m26_tcp_close();
 
-	m26_gprs_deactivate();
+	// m26_gprs_deactivate();
 
 	app_init();
 
