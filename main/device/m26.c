@@ -14,6 +14,7 @@ const char * command_at_qideact = "AT+QIDEACT\n";
 const char * command_at_qidnsip_1 = "AT+QIDNSIP=1\n";
 const char * command_at_qifgcnt_0 = "AT+QIFGCNT=0\n";
 const char * command_at_qilocip = "AT+QILOCIP\n";
+const char * command_at_qimode_0 = "AT+QIMODE=0\n";
 const char * command_at_qimux_0 = "AT+QIMUX=0\n";
 const char * command_at_qiregapp = "AT+QIREGAPP\n";
 
@@ -100,6 +101,12 @@ void m26_init() {
 	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
 	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
 
+	// AT+QIMODE=0 - non-transparent mode for tcpip
+	m26_send_command(command_at_qimode_0);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
 	// AT+QIMUX=0 - turn off connection multiplexing
 	m26_send_command(command_at_qimux_0);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
@@ -168,11 +175,14 @@ size_t m26_get_line(uint16_t timeout) {
 	return 0;
 }
 
+void m26_write_data(const char * data, size_t length) {
+	uart_write_bytes(M26_UART, data, length);
+	ESP_ERROR_CHECK(uart_wait_tx_done(M26_UART, 100));
+}
+
 void m26_send_command(const char * command) {
 	ESP_LOGI(M26_TAG, "send: %s", command);
-
-	uart_write_bytes(M26_UART, command, strlen(command));
-	ESP_ERROR_CHECK(uart_wait_tx_done(M26_UART, 100));
+	m26_write_data(command, strlen(command));
 }
 
 void m26_send_single_reply(const char * command) {
@@ -308,6 +318,19 @@ void m26_tcp_open(char * host, uint16_t port) {
 	m26_get_line(10000); // OK
 	m26_get_line(10000); // blank
 	m26_get_line(10000); // CONNECT OK
+}
+
+void m26_tcp_write(const char * data, size_t length) {
+	snprintf(tx_buffer, M26_TX_BUFFER_SIZE, "AT+QISEND=%d\n", length);
+	m26_send_command(tx_buffer);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+
+	m26_write_data(data, length);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // >
+	m26_get_line(M26_DEFAULT_TIMEOUT); // SEND OK
 }
 
 void m26_tcp_close() {
