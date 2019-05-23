@@ -87,6 +87,12 @@ void ui_screen_process_event(ui_screen_t * screen, ui_event_t * event) {
 		} else if (event->event_data == UI_BUTTON_SELECT) {
 			ui_screen_select(screen);
 		}
+	} else if (event->event_type == UI_EVENT_TYPE_SCROLL) {
+		if (event->event_data == UI_SCROLL_CW) {
+			ui_screen_shift_focus(screen, 1);
+		} else if (event->event_data == UI_SCROLL_CCW) {
+			ui_screen_shift_focus(screen, -1);
+		}
 	}
 }
 
