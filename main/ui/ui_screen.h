@@ -10,11 +10,15 @@
 
 #include "ui/ui_event.h"
 
-typedef struct {
+typedef struct ui_screen {
 	char * title;
 	graphics_color_t bg_color;
 	list_t * bg;
 	list_t * fg;
+
+	void (*update)(struct ui_screen * screen);
+	void (*draw)(struct ui_screen * screen);
+
 	bool force_redraw;
 } ui_screen_t;
 

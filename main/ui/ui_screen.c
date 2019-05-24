@@ -97,7 +97,9 @@ void ui_screen_process_event(ui_screen_t * screen, ui_event_t * event) {
 }
 
 void ui_screen_update(ui_screen_t * screen) {
-	
+	if (screen->update) {
+		screen->update(screen);
+	}
 }
 
 void ui_screen_draw(ui_screen_t * screen) {
@@ -121,7 +123,9 @@ void ui_screen_draw(ui_screen_t * screen) {
 		}
 	}
 
-	// TODO: screen-specific draw
+	if (screen->draw) {
+		screen->draw(screen);
+	}
 
 	if (screen->fg) {
 		list_entry = screen->fg->head;
@@ -140,6 +144,8 @@ ui_screen_t * ui_screen_new(char * title) {
 	if (title) {
 		screen->title = strdup(title);
 	}
+	screen->update = NULL;
+	screen->draw = NULL;
 	screen->bg_color = GRAPHICS_COLOR_WHITE;
 	screen->bg = list_new((void (*)(void *)) ui_item_free);
 	screen->fg = list_new((void (*)(void *)) ui_item_free);

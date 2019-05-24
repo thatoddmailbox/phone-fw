@@ -112,9 +112,6 @@ void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font
 
 	graphics_metrics_t metrics = graphics_measure_text(string, font);
 
-	ESP_LOGI("graphics", "graphics_draw_text - %s", string);
-	ESP_LOGI("graphics", "[%d, %d]", metrics.width, metrics.height);
-
 	bool first = true;
 
 	while (*string) {
@@ -134,8 +131,6 @@ void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font
 			first = false;
 		}
 
-		ESP_LOGI("graphics", "(%d, %d) (cur y: %d)", current_x, bitmap_y, current_y);
-
 		graphics_draw_char(c, current_x, bitmap_y, font, color);
 
 		current_x += advance_width;
@@ -145,7 +140,6 @@ void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font
 }
 
 void graphics_draw_icon(uint8_t x, uint8_t y, const icon_t * icon) {
-	ESP_LOGI("graphics", "graphics_draw_icon");
 	for (size_t y_iter = 0; y_iter < icon->height; y_iter++) {
 		for (size_t x_iter = 0; x_iter < icon->width; x_iter++) {
 			uint16_t data_index = 2 * ((y_iter * icon->width) + x_iter);
