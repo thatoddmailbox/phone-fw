@@ -17,6 +17,7 @@
 #include "device/mcp23008.h"
 #include "device/st7735s.h"
 
+#include "debug.h"
 #include "graphics.h"
 #include "input.h"
 
@@ -62,6 +63,8 @@ void app_main() {
 	graphics_init();
 	ui_init();
 
+	// debug_init();
+
 	graphics_draw_text("Loading...", 10, 10, &font_source_sans_16, GRAPHICS_COLOR_BLACK);
 	graphics_flip();
 
@@ -81,9 +84,16 @@ void app_main() {
 
 	app_launch.start();
 
+	bool yay = true;
+
 	while (1) {
 		input_step();
 		ui_step();
+
+		if (yay) {
+			// debug_send_buffer(graphics_buffer, sizeof(graphics_buffer));
+			yay = false;
+		}
 
 		vTaskDelay(1);
 	}

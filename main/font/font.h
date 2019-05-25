@@ -12,6 +12,7 @@ typedef struct {
 	uint8_t data[];
 } font_t;
 
+extern const font_t font_source_sans_12;
 extern const font_t font_source_sans_16;
 
 #endif

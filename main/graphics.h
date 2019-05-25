@@ -18,6 +18,8 @@ typedef struct {
 	uint8_t height;
 } graphics_metrics_t;
 
+extern graphics_color_t graphics_buffer[ST7735S_WIDTH * ST7735S_HEIGHT];
+
 #define GRAPHICS_SWIZZLE_16(N) (((N & 0xFF) << 8) | (N >> 8))
 
 // color conversion from https://stackoverflow.com/questions/11471122/rgb888-to-rgb565-bit-shifting

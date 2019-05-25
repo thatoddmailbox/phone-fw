@@ -9,6 +9,9 @@
 #include "list.h"
 
 #include "ui/ui_event.h"
+#include "ui/ui_status.h"
+
+#define UI_SCREEN_TITLE_HEIGHT 20
 
 typedef struct ui_screen {
 	char * title;

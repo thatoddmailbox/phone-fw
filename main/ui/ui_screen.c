@@ -110,11 +110,11 @@ void ui_screen_draw(ui_screen_t * screen) {
 	bool show_back = true;
 
 	if (screen->title) {
-		graphics_fill_rect(0, 0, GRAPHICS_WIDTH, 20, GRAPHICS_COLOR_DARK_GRAY);
-		graphics_draw_text(screen->title, 4 + (show_back ? 21 : 0), (20 - 11) / 2, &font_source_sans_16, GRAPHICS_COLOR_WHITE);
+		graphics_fill_rect(0, UI_STATUS_HEIGHT, GRAPHICS_WIDTH, UI_SCREEN_TITLE_HEIGHT, GRAPHICS_COLOR_DARK_GRAY);
+		graphics_draw_text(screen->title, 4 + (show_back ? 21 : 0), UI_STATUS_HEIGHT + (UI_SCREEN_TITLE_HEIGHT - 11) / 2, &font_source_sans_16, GRAPHICS_COLOR_WHITE);
 		if (show_back) {
-			graphics_draw_icon(4, 4, &icon_back_title);
-			graphics_fill_rect(20, 0, 1, 20, GRAPHICS_COLOR_WHITE);
+			graphics_draw_icon(4, UI_STATUS_HEIGHT + 4, &icon_back_title);
+			graphics_fill_rect(20, UI_STATUS_HEIGHT, 1, UI_SCREEN_TITLE_HEIGHT, GRAPHICS_COLOR_WHITE);
 		}
 	}
 
@@ -143,6 +143,8 @@ void ui_screen_draw(ui_screen_t * screen) {
 			list_entry = list_entry->next;
 		}
 	}
+
+	ui_status_draw();
 }
 
 ui_screen_t * ui_screen_new(char * title) {
