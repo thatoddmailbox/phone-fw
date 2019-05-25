@@ -107,9 +107,15 @@ void ui_screen_draw(ui_screen_t * screen) {
 
 	graphics_fill_rect(0, 0, GRAPHICS_WIDTH, GRAPHICS_HEIGHT, screen->bg_color);
 
+	bool show_back = true;
+
 	if (screen->title) {
 		graphics_fill_rect(0, 0, GRAPHICS_WIDTH, 20, GRAPHICS_COLOR_DARK_GRAY);
-		graphics_draw_text(screen->title, 5, (20 - 11) / 2, &font_source_sans_16, GRAPHICS_COLOR_WHITE);
+		graphics_draw_text(screen->title, 4 + (show_back ? 21 : 0), (20 - 11) / 2, &font_source_sans_16, GRAPHICS_COLOR_WHITE);
+		if (show_back) {
+			graphics_draw_icon(4, 4, &icon_back_title);
+			graphics_fill_rect(20, 0, 1, 20, GRAPHICS_COLOR_WHITE);
+		}
 	}
 
 	if (screen->bg) {

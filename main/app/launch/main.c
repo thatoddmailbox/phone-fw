@@ -4,11 +4,11 @@ const char * APP_LAUNCH_TAG = "launch";
 
 ui_screen_t * app_launch_main;
 
-void app_launch_button_click(ui_item_t * item, ui_screen_t * screen) {
+static void app_launch_button_click(ui_item_t * item, ui_screen_t * screen) {
 	ESP_LOGI(APP_LAUNCH_TAG, "button pressed: %s", ((ui_button_metadata_t *) item->metadata)->text);
 }
 
-void app_launch_init() {
+static void app_launch_init() {
 	app_launch_main = ui_screen_new("Launcher");
 
 	ui_item_t * phone = ui_button_new("Phone", &icon_phone, 10, 20 + 5, 32, 32, app_launch_button_click);
@@ -21,6 +21,13 @@ void app_launch_init() {
 	list_add(app_launch_main->fg, other);
 }
 
-void app_launch_start() {
+static void app_launch_start() {
 	ui_set_screen(app_launch_main);
 }
+
+app_t app_launch = {
+	.name = "Launcher",
+
+	.init = &app_launch_init,
+	.start = &app_launch_start
+};

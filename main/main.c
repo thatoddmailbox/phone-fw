@@ -79,7 +79,7 @@ void app_main() {
 
 	app_init();
 
-	app_launch_start();
+	app_launch.start();
 
 	while (1) {
 		input_step();

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include <math.h>
+
 #include "device/st7735s.h"
 
 #include "font/font.h"
@@ -39,6 +41,8 @@ typedef struct {
 void graphics_init();
 
 void graphics_clear(graphics_color_t color);
+
+graphics_color_t graphics_interpolate_color(graphics_color_t start, graphics_color_t end, uint8_t amount);
 
 graphics_color_t graphics_get_pixel(uint8_t x, uint8_t y);
 void graphics_set_pixel(uint8_t x, uint8_t y, graphics_color_t color);

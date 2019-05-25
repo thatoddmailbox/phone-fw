@@ -13,6 +13,128 @@ void graphics_clear(graphics_color_t color) {
 	}
 }
 
+// colorspace conversion functions are modified versions of the code from https://www.cs.rit.edu/~ncs/color/t_convert.html
+
+static void graphics_rgb_to_hsv( float r, float g, float b, float *h, float *s, float *v ) {
+	float color_min, color_max, delta;
+
+	color_min = fminf(r, fminf(g, b));
+	color_max = fmaxf(r, fmaxf(g, b));
+	*v = color_max;
+
+	delta = color_max - color_min;
+
+	if( color_max != 0 )
+		*s = delta / color_max;
+	else {
+		// r = g = b = 0		// s = 0, v is undefined
+		*s = 0;
+		*h = -1;
+		return;
+	}
+
+	if (delta != 0) {
+		if( r == color_max )
+			*h = ( g - b ) / delta;		// between yellow & magenta
+		else if( g == color_max )
+			*h = 2 + ( b - r ) / delta;	// between cyan & yellow
+		else
+			*h = 4 + ( r - g ) / delta;	// between magenta & cyan
+	} else {
+		*h = 0; // white?
+	}
+
+	*h *= 60;				// degrees
+	if( *h < 0 )
+		*h += 360;
+
+}
+
+static void graphics_hsv_to_rgb(float *r, float *g, float *b, float h, float s, float v) {
+	int i;
+	float f, p, q, t;
+
+	if( s == 0 ) {
+		// achromatic (grey)
+		*r = *g = *b = v;
+		return;
+	}
+
+	h /= 60;			// sector 0 to 5
+	i = floor( h );
+	f = h - i;			// factorial part of h
+	p = v * ( 1 - s );
+	q = v * ( 1 - s * f );
+	t = v * ( 1 - s * ( 1 - f ) );
+
+	switch( i ) {
+		case 0:
+			*r = v;
+			*g = t;
+			*b = p;
+			break;
+		case 1:
+			*r = q;
+			*g = v;
+			*b = p;
+			break;
+		case 2:
+			*r = p;
+			*g = v;
+			*b = t;
+			break;
+		case 3:
+			*r = p;
+			*g = q;
+			*b = v;
+			break;
+		case 4:
+			*r = t;
+			*g = p;
+			*b = v;
+			break;
+		default:		// case 5:
+			*r = v;
+			*g = p;
+			*b = q;
+			break;
+	}
+}
+
+graphics_color_t graphics_interpolate_color(graphics_color_t start, graphics_color_t end, uint8_t amount) {
+	if (amount == 0) {
+		return start;
+	}
+	if (amount == 255) {
+		return end;
+	}
+
+	float start_r, start_g, start_b, end_r, end_g, end_b;
+	start_r = ((float) GRAPHICS_COLOR_GET_RED(start)) / 255;
+	start_g = ((float) GRAPHICS_COLOR_GET_GREEN(start)) / 255;
+	start_b = ((float) GRAPHICS_COLOR_GET_BLUE(start)) / 255;
+	end_r = ((float) GRAPHICS_COLOR_GET_RED(end)) / 255;
+	end_g = ((float) GRAPHICS_COLOR_GET_GREEN(end)) / 255;
+	end_b = ((float) GRAPHICS_COLOR_GET_BLUE(end)) / 255;
+
+	float start_h, start_s, start_v, end_h, end_s, end_v;
+
+	graphics_rgb_to_hsv(start_r, start_g, start_b, &start_h, &start_s, &start_v);
+	graphics_rgb_to_hsv(end_r, end_g, end_b, &end_h, &end_s, &end_v);
+
+	float amount_norm = ((float) amount) / 255;
+
+	float interp_h = ((end_h - start_h) * amount_norm) + start_h;
+	float interp_s = ((end_s - start_s) * amount_norm) + start_s;
+	float interp_v = ((end_v - start_v) * amount_norm) + start_v;
+
+	float interp_r, interp_g, interp_b;
+
+	graphics_hsv_to_rgb(&interp_r, &interp_g, &interp_b, interp_h, interp_s, interp_v);
+
+	return GRAPHICS_COLOR((uint8_t) (interp_r * 255), (uint8_t) (interp_g * 255), (uint8_t) (interp_b * 255));
+}
+
 graphics_color_t graphics_get_pixel(uint8_t x, uint8_t y) {
 	return graphics_buffer[(y * ST7735S_WIDTH) + x];
 }
@@ -89,7 +211,16 @@ void graphics_draw_char(char c, uint8_t x, uint8_t y, const font_t * font, graph
 		draw_x = x + left_shift;
 		for (uint8_t bitmap_x = 0; bitmap_x < bitmap_width; bitmap_x++) {
 			graphics_color_t background = graphics_get_pixel(draw_x, draw_y);
-			uint8_t alpha = bitmap_data[(bitmap_y * bitmap_width) + bitmap_x];
+			uint8_t alpha = 255 - bitmap_data[(bitmap_y * bitmap_width) + bitmap_x];
+
+			graphics_color_t pixel_color = graphics_interpolate_color(background, color, alpha);
+			//GRAPHICS_COLOR(alpha, alpha, alpha);
+
+			// if (pixel_color == GRAPHICS_COLOR_WHITE) {
+			// 	pixel_color = background;
+			// } else { // if (pixel_color == GRAPHICS_COLOR_BLACK) {
+			// 	pixel_color = color;
+			// }
 
 			// see: https://en.wikipedia.org/wiki/Alpha_compositing
 			// specifically, this is a porter-duff over operation
@@ -99,7 +230,7 @@ void graphics_draw_char(char c, uint8_t x, uint8_t y, const font_t * font, graph
 			// uint8_t color_b = (GRAPHICS_COLOR_GET_BLUE(color) + (GRAPHICS_COLOR_GET_BLUE(background) * (255 - alpha)));
 			// graphics_color_t color = GRAPHICS_COLOR(color_r, color_g, color_b);
 
-			graphics_set_pixel(draw_x, draw_y, GRAPHICS_COLOR(alpha, alpha, alpha));
+			graphics_set_pixel(draw_x, draw_y, pixel_color);
 			draw_x++;
 		}
 		draw_y++;

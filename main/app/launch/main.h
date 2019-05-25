@@ -3,13 +3,14 @@
 
 #include <esp_log.h>
 
+#include "app/main.h"
+
 #include "ui/ui_item.h"
 #include "ui/ui_button.h"
 
 #include "ui/ui_screen.h"
 #include "ui/ui.h"
 
-void app_launch_init();
-void app_launch_start();
+extern app_t app_launch;
 
 #endif

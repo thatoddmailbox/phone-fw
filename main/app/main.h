@@ -1,7 +1,11 @@
 #ifndef _APP_MAIN_H
 #define _APP_MAIN_H
 
-#include "app/launch/main.h"
+typedef struct {
+	const char * name;
+	void (*init)();
+	void (*start)();
+} app_t;
 
 void app_init();
 
