@@ -211,24 +211,15 @@ void graphics_draw_char(char c, uint8_t x, uint8_t y, const font_t * font, graph
 		draw_x = x + left_shift;
 		for (uint8_t bitmap_x = 0; bitmap_x < bitmap_width; bitmap_x++) {
 			graphics_color_t background = graphics_get_pixel(draw_x, draw_y);
-			uint8_t alpha = 255 - bitmap_data[(bitmap_y * bitmap_width) + bitmap_x];
+			uint8_t alpha =  bitmap_data[(bitmap_y * bitmap_width) + bitmap_x];
 
-			graphics_color_t pixel_color = graphics_interpolate_color(background, color, alpha);
-			//GRAPHICS_COLOR(alpha, alpha, alpha);
-
-			// if (pixel_color == GRAPHICS_COLOR_WHITE) {
-			// 	pixel_color = background;
-			// } else { // if (pixel_color == GRAPHICS_COLOR_BLACK) {
-			// 	pixel_color = color;
-			// }
-
-			// see: https://en.wikipedia.org/wiki/Alpha_compositing
-			// specifically, this is a porter-duff over operation
-			// A over B where A is the text and B is the background
-			// uint8_t color_r = (GRAPHICS_COLOR_GET_RED(color) + (GRAPHICS_COLOR_GET_RED(background) * (255 - alpha)));
-			// uint8_t color_g = (GRAPHICS_COLOR_GET_GREEN(color) + (GRAPHICS_COLOR_GET_GREEN(background) * (255 - alpha)));
-			// uint8_t color_b = (GRAPHICS_COLOR_GET_BLUE(color) + (GRAPHICS_COLOR_GET_BLUE(background) * (255 - alpha)));
-			// graphics_color_t color = GRAPHICS_COLOR(color_r, color_g, color_b);
+			graphics_color_t pixel_color;
+			if (background == GRAPHICS_COLOR_WHITE && color == GRAPHICS_COLOR_BLACK) {
+				// fast path: skip interpolation calculations
+				pixel_color = GRAPHICS_COLOR(alpha, alpha, alpha);
+			} else {
+				pixel_color = graphics_interpolate_color(background, color, 255 - alpha);
+			}
 
 			graphics_set_pixel(draw_x, draw_y, pixel_color);
 			draw_x++;
