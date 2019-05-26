@@ -9,6 +9,8 @@
 
 #include <stdatomic.h>
 
+#include "external/minmea.h"
+
 #include "device/l80.h"
 
 void l80_watcher_start();
