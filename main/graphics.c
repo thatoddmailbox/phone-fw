@@ -140,6 +140,9 @@ graphics_color_t graphics_get_pixel(uint8_t x, uint8_t y) {
 }
 
 void graphics_set_pixel(uint8_t x, uint8_t y, graphics_color_t color) {
+	if (x >= ST7735S_WIDTH || y >= ST7735S_HEIGHT) {
+		return;
+	}
 	graphics_buffer[(y * ST7735S_WIDTH) + x] = color;
 }
 
