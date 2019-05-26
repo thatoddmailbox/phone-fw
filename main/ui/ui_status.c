@@ -1,10 +1,10 @@
 #include "ui/ui_status.h"
 
 static void ui_status_draw_signal_bars(uint8_t x, uint8_t y, uint8_t amount) {
-	graphics_fill_rect(x, y + 6, 2, 2, GRAPHICS_COLOR_WHITE);
-	graphics_fill_rect(x + 3, y + 4, 2, 4, GRAPHICS_COLOR_WHITE);
-	graphics_fill_rect(x + 6, y + 2, 2, 6, GRAPHICS_COLOR_WHITE);
-	graphics_fill_rect(x + 9, y, 2, 8, GRAPHICS_COLOR_WHITE);
+	if (amount >= 1) { graphics_fill_rect(x, y + 6, 2, 2, GRAPHICS_COLOR_WHITE); }
+	if (amount >= 2) { graphics_fill_rect(x + 3, y + 4, 2, 4, GRAPHICS_COLOR_WHITE); }
+	if (amount >= 3) { graphics_fill_rect(x + 6, y + 2, 2, 6, GRAPHICS_COLOR_WHITE); }
+	if (amount >= 4) { graphics_fill_rect(x + 9, y, 2, 8, GRAPHICS_COLOR_WHITE); }
 }
 
 bool ui_status_dirty() {
@@ -45,7 +45,7 @@ void ui_status_draw() {
 	} else if (registration == M26_CREG_NOT_REGISTERED) {
 		graphics_draw_text("No signal", GRAPHICS_WIDTH - 52 - 2, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
 	} else {
-		graphics_draw_text("Error", GRAPHICS_WIDTH - 42 - 2, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
+		graphics_draw_text("Error", GRAPHICS_WIDTH - 32 - 2, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
 	}
 
 	atomic_store(&m26_watcher_dirty, false);
