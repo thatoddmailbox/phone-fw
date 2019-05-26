@@ -12,11 +12,6 @@
 
 #include <driver/uart.h>
 
-#include "device/m26.h"
-#include "device/m26_transport.h"
-#include "device/mcp23008.h"
-#include "device/st7735s.h"
-
 #include "debug.h"
 #include "graphics.h"
 #include "input.h"
@@ -24,8 +19,15 @@
 #include "app/main.h"
 #include "app/launch/main.h"
 
+#include "device/m26.h"
+#include "device/m26_transport.h"
+#include "device/mcp23008.h"
+#include "device/st7735s.h"
+
 #include "ui/ui_button.h"
 #include "ui/ui.h"
+
+#include "watcher/m26_watcher.h"
 
 /*
  * helpful pins:
@@ -65,20 +67,15 @@ void app_main() {
 
 	// debug_init();
 
+	// show something on the screen to entertain user
 	graphics_draw_text("Loading...", 10, 10, &font_source_sans_16, GRAPHICS_COLOR_BLACK);
 	graphics_flip();
 
-	// m26_init();
+	// start m26
+	m26_init();
 
-	// m26_gprs_activate("hologram");
-	// m26_dns_set("8.8.8.8", "8.8.8.4");
-
-	// // m26_http_get("http://aserv-cloud.cloudapp.net/phone/ping.php");
-	// // m26_tcp_open("studerfamily.us", 9999);
-	// // m26_tcp_write("Yay it works!\n", 14);
-	// // m26_tcp_close();
-
-	// m26_gprs_deactivate();
+	// start watcher tasks
+	m26_watcher_start();
 
 	app_init();
 

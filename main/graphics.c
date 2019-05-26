@@ -242,6 +242,12 @@ void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font
 	while (*string) {
 		char c = *string;
 
+		if (c == ' ') {
+			current_x += 5;
+			string++;
+			continue;
+		}
+
 		const uint8_t * character_data = font->data + (font->indexes[c - '!']);
 		uint8_t left_shift = character_data[0];
 		uint8_t bitmap_height = character_data[3];

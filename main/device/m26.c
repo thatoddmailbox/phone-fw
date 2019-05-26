@@ -6,6 +6,8 @@ const char * command_at = "AT\n";
 const char * command_ate0 = "ATE0\n";
 const char * command_at_ccid = "AT+CCID\n";
 const char * command_at_cmee_2 = "AT+CMEE=2\n";
+const char * command_at_creg = "AT+CREG?\n";
+const char * command_at_csq = "AT+CSQ\n";
 const char * command_at_cops = "AT+COPS?\n";
 const char * command_at_gsn = "AT+GSN\n";
 const char * command_at_qiact = "AT+QIACT\n";
@@ -24,7 +26,14 @@ char tx_buffer[M26_TX_BUFFER_SIZE];
 char rx_buffer[M26_RX_BUFFER_SIZE];
 size_t rx_buffer_length = 0;
 
+SemaphoreHandle_t m26_mutex = NULL;
+StaticSemaphore_t m26_mutex_buffer;
+
 void m26_init() {
+	// create static mutex
+	m26_mutex = xSemaphoreCreateMutexStatic(&m26_mutex_buffer);
+	configASSERT(m26_mutex);
+
 	// set up pwrkey gpio
     gpio_pad_select_gpio(M26_PWRKEY);
 	gpio_set_direction(M26_PWRKEY, GPIO_MODE_OUTPUT);
@@ -195,7 +204,7 @@ void m26_get_ccid(char * ccid) {
 	m26_send_command(command_at_ccid);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
 	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
-	m26_get_line(M26_DEFAULT_TIMEOUT); // +CCID: "<ccid>""
+	m26_get_line(M26_DEFAULT_TIMEOUT); // +CCID: "<ccid>"
 
 	if (strlen(line_buffer) >= (strlen("+CCID: \"") + 20 + 1)) {
 		memcpy(ccid, line_buffer + strlen("+CCID: \""), 20);
@@ -206,6 +215,37 @@ void m26_get_ccid(char * ccid) {
 
 	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
 	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+}
+
+uint8_t m26_get_creg() {
+	m26_send_command(command_at_creg);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // +CREG: 0,<status>
+
+	uint8_t creg_status = line_buffer[9] - '0';
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	return creg_status;
+}
+
+uint8_t m26_get_csq() {
+	m26_send_command(command_at_csq);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // +CSQ: <rssi>,<rxqual>
+
+	char * comma = strchr(line_buffer, ',');
+	uint8_t number_string_len = (uint8_t) (comma - (line_buffer + 6));
+	line_buffer[6 + number_string_len] = '\0';
+	int csq = atoi(line_buffer + 6);
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	return (uint8_t) csq;
 }
 
 void m26_get_imei(char * imei) {
@@ -248,7 +288,7 @@ char * m26_get_operator() {
 	return result;
 }
 
-void m26_gprs_activate(char * apn) {
+void m26_gprs_activate(const char * apn) {
 	// set apn
 	snprintf(tx_buffer, M26_TX_BUFFER_SIZE, "AT+QICSGP=1,\"%s\"\n", apn);
 	m26_send_command(tx_buffer);
@@ -291,7 +331,7 @@ void m26_gprs_deactivate() {
 	m26_get_line(5000); // OK
 }
 
-void m26_dns_set(char * primary, char * secondary) {
+void m26_dns_set(const char * primary, const char * secondary) {
 	// enable dns servers
 	m26_send_command(command_at_qidnsip_1);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
@@ -308,7 +348,7 @@ void m26_dns_set(char * primary, char * secondary) {
 	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
 }
 
-void m26_tcp_open(char * host, uint16_t port) {
+void m26_tcp_open(const char * host, uint16_t port) {
 	// open connection
 	snprintf(tx_buffer, M26_TX_BUFFER_SIZE, "AT+QIOPEN=\"TCP\",\"%s\",\"%d\"\n", host, port);
 	m26_send_command(tx_buffer);
@@ -341,7 +381,7 @@ void m26_tcp_close() {
 	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
 }
 
-void m26_http_get(char * url) {
+void m26_http_get(const char * url) {
 	// set url
 	snprintf(tx_buffer, M26_TX_BUFFER_SIZE, "AT+QHTTPURL=%d,60\n", strlen(url));
 

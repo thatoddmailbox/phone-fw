@@ -37,7 +37,7 @@ void ui_step() {
 
 	// draw
 	if (ui_current_screen) {
-		if (ui_is_dirty || ui_current_screen->force_redraw) {
+		if (ui_is_dirty || ui_current_screen->force_redraw || ui_status_dirty()) {
 			ui_screen_draw(ui_current_screen);
 			graphics_flip();
 

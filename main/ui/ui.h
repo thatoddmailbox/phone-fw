@@ -9,6 +9,7 @@
 
 #include "ui/ui_event.h"
 #include "ui/ui_screen.h"
+#include "ui/ui_status.h"
 
 void ui_init();
 void ui_set_screen(ui_screen_t * screen);
