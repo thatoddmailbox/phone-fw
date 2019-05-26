@@ -10,8 +10,6 @@
 #include <esp_log.h>
 #include <nvs_flash.h>
 
-#include <driver/uart.h>
-
 #include "debug.h"
 #include "graphics.h"
 #include "input.h"
@@ -19,34 +17,16 @@
 #include "app/main.h"
 #include "app/launch/main.h"
 
+#include "device/l80.h"
 #include "device/m26.h"
 #include "device/m26_transport.h"
 #include "device/mcp23008.h"
 #include "device/st7735s.h"
 
-#include "ui/ui_button.h"
 #include "ui/ui.h"
 
+#include "watcher/l80_watcher.h"
 #include "watcher/m26_watcher.h"
-
-/*
- * helpful pins:
- * 
- * M26:
- * GSM_PWRKEY: GPIO4
- * UART2_RX/GSM_TX: GPIO35
- * UART2_TX/GSM_RX: GPIO18
- * 
- * L80-R:
- * GPS_RESET: GPIO2
- * UART1_RX/GPS_TX: GPIO34
- * UART1_TX/GPS_RX: GPIO5
- */
-
-#define GPS_RESET 2
-#define GPS_UART UART_NUM_1
-#define GPS_TX 34
-#define GPS_RX 5
 
 void app_main() {
 	esp_err_t ret = nvs_flash_init();
@@ -71,11 +51,13 @@ void app_main() {
 	graphics_draw_text("Loading...", 10, 10, &font_source_sans_16, GRAPHICS_COLOR_BLACK);
 	graphics_flip();
 
-	// start m26
+	// start devices
 	m26_init();
+	l80_init();
 
 	// start watcher tasks
 	m26_watcher_start();
+	l80_watcher_start();
 
 	app_init();
 
@@ -112,41 +94,5 @@ void app_main() {
 		free(op);
 	} else {
 		ESP_LOGI("hi", "operator = null");
-	}
-
-	// set up gps
-	uart_config_t gps_uart_config = {
-		.baud_rate = 9600,
-		.data_bits = UART_DATA_8_BITS,
-		.parity = UART_PARITY_DISABLE,
-		.stop_bits = UART_STOP_BITS_1,
-		.flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-		.rx_flow_ctrl_thresh = 122,
-	};
-
-	// Configure UART parameters - l80
-	ESP_ERROR_CHECK(uart_param_config(GPS_UART, &gps_uart_config));
-	ESP_ERROR_CHECK(uart_set_pin(GPS_UART, GPS_RX, GPS_TX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-
-	const int uart_buffer_size = (1024 * 2);
-	QueueHandle_t gps_uart_queue;
-	// Install UART driver using an event queue here
-	ESP_ERROR_CHECK(uart_driver_install(GPS_UART, uart_buffer_size, uart_buffer_size, 10, &gps_uart_queue, 0));
-
-	while (1) {
-		uint8_t data[128];
-		size_t length = 0;
-
-		// gps read
-		length = 0;
-		ESP_ERROR_CHECK(uart_get_buffered_data_len(GPS_UART, &length));
-		length = uart_read_bytes(GPS_UART, data, length, 100);
-		if (length > 0) {
-			data[length] = '\0';
-			ESP_LOGI("gps", "got something %d!\n", length);
-			printf("gpsyay: %s\n", (char *) data);
-		}
-		
-		vTaskDelay(10 / portTICK_PERIOD_MS);
 	}
 }
