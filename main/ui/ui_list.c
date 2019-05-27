@@ -67,7 +67,7 @@ static void ui_list_free(ui_item_t * list) {
 	}
 }
 
-void ui_list_shift_focus(ui_screen_t * screen, ui_item_t * list, int8_t direction) {
+bool ui_list_shift_focus(ui_screen_t * screen, ui_item_t * list, int8_t direction) {
 	ui_list_metadata_t * list_data = (ui_list_metadata_t *) list->metadata;
 
 	if (list_data->_current_focus_item) {
@@ -76,12 +76,18 @@ void ui_list_shift_focus(ui_screen_t * screen, ui_item_t * list, int8_t directio
 				list_data->_current_focus_item = list_data->_current_focus_item->next;
 				list_data->_current_focus += 1;
 				screen->force_redraw = true;
+				return true;
+			} else {
+				return false;
 			}
 		} else if (direction == -1) {
 			if (list_data->_current_focus_item->prev) {
 				list_data->_current_focus_item = list_data->_current_focus_item->prev;
 				list_data->_current_focus -= 1;
 				screen->force_redraw = true;
+				return true;
+			} else {
+				return false;
 			}
 		}
 	} else {
@@ -89,8 +95,13 @@ void ui_list_shift_focus(ui_screen_t * screen, ui_item_t * list, int8_t directio
 			list_data->_current_focus_item = list_data->items->head;
 			list_data->_current_focus = 0;
 			screen->force_redraw = true;
+			return true;
+		} else {
+			return false;
 		}
 	}
+
+	return false;
 }
 
 void ui_list_select(ui_screen_t * screen, ui_item_t * list) {

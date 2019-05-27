@@ -8,9 +8,29 @@
 #include "font/font.h"
 
 static void ui_screen_shift_focus(ui_screen_t * screen, int8_t direction) {
+	if (screen->back_focused) {
+		screen->back_focused = false;
+	}
+
 	if (screen->list) {
 		// there's a list absorbing all of the focus events
-		ui_list_shift_focus(screen, (ui_item_t *) screen->list, direction);
+		if (!ui_list_shift_focus(screen, (ui_item_t *) screen->list, direction)) {
+			ESP_LOGI("ui_screen", "list bad");
+
+			// it didn't move, is there a back button?
+			if (screen->go_back) {
+				ESP_LOGI("ui_screen", "focus back");
+				// there is, focus on that
+				screen->back_focused = true;
+
+				// also unfocus the list
+				ui_list_metadata_t * list_data = (ui_list_metadata_t *) ((ui_item_t *) screen->list)->metadata;
+				list_data->_current_focus_item = NULL;
+				list_data->_current_focus = 0;
+
+				screen->force_redraw = true;
+			}
+		}
 		return;
 	}
 
@@ -66,6 +86,12 @@ static void ui_screen_shift_focus(ui_screen_t * screen, int8_t direction) {
 }
 
 static void ui_screen_select(ui_screen_t * screen) {
+	if (screen->back_focused) {
+		screen->back_focused = false;
+		screen->go_back(screen);
+		return;
+	}
+
 	if (screen->list) {
 		// there's a list absorbing all of the focus events
 		ui_list_select(screen, (ui_item_t *) screen->list);
@@ -131,17 +157,6 @@ void ui_screen_draw(ui_screen_t * screen) {
 		list->draw(list, screen);
 	}
 
-	bool show_back = true;
-
-	if (screen->title) {
-		graphics_fill_rect(0, UI_STATUS_HEIGHT, GRAPHICS_WIDTH, UI_SCREEN_TITLE_HEIGHT, GRAPHICS_COLOR_DARK_GRAY);
-		graphics_draw_text(screen->title, 4 + (show_back ? 21 : 0), UI_STATUS_HEIGHT + (UI_SCREEN_TITLE_HEIGHT - 11) / 2, &font_source_sans_16, GRAPHICS_COLOR_WHITE);
-		if (show_back) {
-			graphics_draw_icon(4, UI_STATUS_HEIGHT + 4, &icon_back_title);
-			graphics_fill_rect(20, UI_STATUS_HEIGHT, 1, UI_SCREEN_TITLE_HEIGHT, GRAPHICS_COLOR_WHITE);
-		}
-	}
-
 	if (screen->bg) {
 		list_entry = screen->bg->head;
 		while (list_entry) {
@@ -150,6 +165,21 @@ void ui_screen_draw(ui_screen_t * screen) {
 				item->draw(item, screen);
 			}
 			list_entry = list_entry->next;
+		}
+	}
+
+	bool show_back = (screen->go_back != NULL);
+
+	if (screen->title) {
+		graphics_fill_rect(0, UI_STATUS_HEIGHT, GRAPHICS_WIDTH, UI_SCREEN_TITLE_HEIGHT, GRAPHICS_COLOR_DARK_GRAY);
+		graphics_draw_text(screen->title, 4 + (show_back ? 21 : 0), UI_STATUS_HEIGHT + (UI_SCREEN_TITLE_HEIGHT - 11) / 2, &font_source_sans_16, GRAPHICS_COLOR_WHITE);
+		if (show_back) {
+			graphics_draw_icon(4, UI_STATUS_HEIGHT + 4, &icon_back_title);
+			graphics_fill_rect(20, UI_STATUS_HEIGHT, 1, UI_SCREEN_TITLE_HEIGHT, GRAPHICS_COLOR_WHITE);
+
+			if (screen->back_focused) {
+				graphics_draw_rect(0, UI_STATUS_HEIGHT, 20, 20, 2, GRAPHICS_COLOR_BLUE);
+			}
 		}
 	}
 

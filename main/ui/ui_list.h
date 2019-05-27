@@ -25,7 +25,7 @@ typedef struct ui_list_metadata {
 	list_t * items;
 } ui_list_metadata_t;
 
-void ui_list_shift_focus(ui_screen_t * screen, ui_item_t * list, int8_t direction);
+bool ui_list_shift_focus(ui_screen_t * screen, ui_item_t * list, int8_t direction);
 void ui_list_select(ui_screen_t * screen, ui_item_t * list);
 
 ui_item_t * ui_list_new(uint8_t x, uint8_t y, uint8_t w, uint8_t h);

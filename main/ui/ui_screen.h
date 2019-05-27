@@ -21,6 +21,9 @@ typedef struct ui_screen {
 
 	void * list; // HACK: this is a void * instead of the ui_item_t * it should be
 
+	void (*go_back)(struct ui_screen * screen);
+	bool back_focused;
+
 	void (*update)(struct ui_screen * screen);
 	void (*draw)(struct ui_screen * screen);
 
