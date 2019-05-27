@@ -22,7 +22,7 @@ static void ui_button_draw(struct ui_item * item, ui_screen_t * screen) {
 	} else {
 		graphics_draw_rect(item->x, item->y, item->w, item->h, 2, GRAPHICS_COLOR_BLACK);
 	}
-	
+
 	if (metadata->text) {
 		graphics_draw_text(metadata->text, item->x + item->w + 10, item->y + ((item->h - 11) / 2) + 1, &font_source_sans_16, GRAPHICS_COLOR_BLACK);
 	}

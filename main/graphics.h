@@ -12,6 +12,7 @@
 #include "icon/icon.h"
 
 typedef uint16_t graphics_color_t;
+typedef int16_t graphics_point_t;
 
 typedef struct {
 	uint8_t width;
@@ -46,17 +47,17 @@ void graphics_clear(graphics_color_t color);
 
 graphics_color_t graphics_interpolate_color(graphics_color_t start, graphics_color_t end, uint8_t amount);
 
-graphics_color_t graphics_get_pixel(uint8_t x, uint8_t y);
-void graphics_set_pixel(uint8_t x, uint8_t y, graphics_color_t color);
+graphics_color_t graphics_get_pixel(graphics_point_t x, graphics_point_t y);
+void graphics_set_pixel(graphics_point_t x, graphics_point_t y, graphics_color_t color);
 
-void graphics_draw_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t thickness, graphics_color_t color);
-void graphics_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, graphics_color_t color);
+void graphics_draw_rect(graphics_point_t x, graphics_point_t y, graphics_point_t w, graphics_point_t h, uint8_t thickness, graphics_color_t color);
+void graphics_fill_rect(graphics_point_t x, graphics_point_t y, graphics_point_t w, graphics_point_t h, graphics_color_t color);
 
 graphics_metrics_t graphics_measure_text(char * string, const font_t * font);
 
-void graphics_draw_char(char c, uint8_t x, uint8_t y, const font_t * font, graphics_color_t color);
-void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font, graphics_color_t color);
-void graphics_draw_icon(uint8_t x, uint8_t y, const icon_t * icon);
+void graphics_draw_char(char c, graphics_point_t x, graphics_point_t y, const font_t * font, graphics_color_t color);
+void graphics_draw_text(const char * string, graphics_point_t x, graphics_point_t y, const font_t * font, graphics_color_t color);
+void graphics_draw_icon(graphics_point_t x, graphics_point_t y, const icon_t * icon);
 
 void graphics_blit_bitmap(uint8_t bitmap[ST7735S_WIDTH * ST7735S_HEIGHT]);
 

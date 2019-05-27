@@ -135,36 +135,36 @@ graphics_color_t graphics_interpolate_color(graphics_color_t start, graphics_col
 	return GRAPHICS_COLOR((uint8_t) (interp_r * 255), (uint8_t) (interp_g * 255), (uint8_t) (interp_b * 255));
 }
 
-graphics_color_t graphics_get_pixel(uint8_t x, uint8_t y) {
+graphics_color_t graphics_get_pixel(graphics_point_t x, graphics_point_t y) {
 	return graphics_buffer[(y * ST7735S_WIDTH) + x];
 }
 
-void graphics_set_pixel(uint8_t x, uint8_t y, graphics_color_t color) {
-	if (x >= ST7735S_WIDTH || y >= ST7735S_HEIGHT) {
+void graphics_set_pixel(graphics_point_t x, graphics_point_t y, graphics_color_t color) {
+	if (x < 0 || y < 0 || x >= ST7735S_WIDTH || y >= ST7735S_HEIGHT) {
 		return;
 	}
 	graphics_buffer[(y * ST7735S_WIDTH) + x] = color;
 }
 
-void graphics_draw_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t thickness, graphics_color_t color) {
+void graphics_draw_rect(graphics_point_t x, graphics_point_t y, graphics_point_t w, graphics_point_t h, uint8_t thickness, graphics_color_t color) {
 	for (uint8_t thickness_iter = 0; thickness_iter < thickness; thickness_iter++) {
 		// top and bottom lines
-		for	(uint8_t x_iter = (x + thickness_iter); x_iter <= (x + w - thickness_iter); x_iter++) {
+		for	(graphics_point_t x_iter = (x + thickness_iter); x_iter <= (x + w - thickness_iter); x_iter++) {
 			graphics_set_pixel(x_iter, y + thickness_iter, color);
 			graphics_set_pixel(x_iter, y - thickness_iter + h, color);
 		}
 
 		// left and right lines
-		for	(uint8_t y_iter = (y + thickness_iter); y_iter <= (y + h - thickness_iter); y_iter++) {
+		for	(graphics_point_t y_iter = (y + thickness_iter); y_iter <= (y + h - thickness_iter); y_iter++) {
 			graphics_set_pixel(x + thickness_iter, y_iter, color);
 			graphics_set_pixel(x - thickness_iter + h, y_iter, color);
 		}
 	}
 }
 
-void graphics_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, graphics_color_t color) {
-	for	(uint8_t y_iter = y; y_iter < y + h; y_iter++) {
-		for	(uint8_t x_iter = x; x_iter < x + w; x_iter++) {
+void graphics_fill_rect(graphics_point_t x, graphics_point_t y, graphics_point_t w, graphics_point_t h, graphics_color_t color) {
+	for	(graphics_point_t y_iter = y; y_iter < y + h; y_iter++) {
+		for	(graphics_point_t x_iter = x; x_iter < x + w; x_iter++) {
 			graphics_set_pixel(x_iter, y_iter, color);
 		}
 	}
@@ -194,7 +194,7 @@ graphics_metrics_t graphics_measure_text(char * string, const font_t * font) {
 	return metrics;
 }
 
-void graphics_draw_char(char c, uint8_t x, uint8_t y, const font_t * font, graphics_color_t color) {
+void graphics_draw_char(char c, graphics_point_t x, graphics_point_t y, const font_t * font, graphics_color_t color) {
 	if (c < '!' || c > '~') {
 		c = '?';
 	}
@@ -208,11 +208,11 @@ void graphics_draw_char(char c, uint8_t x, uint8_t y, const font_t * font, graph
 	// uint8_t advance_height = character_data[5];
 
 	const uint8_t * bitmap_data = character_data + 6;
-	uint8_t draw_x = x + left_shift;
-	uint8_t draw_y = y; // + top_shift;
-	for (uint8_t bitmap_y = 0; bitmap_y < bitmap_height; bitmap_y++) {
+	graphics_point_t draw_x = x + left_shift;
+	graphics_point_t draw_y = y; // + top_shift;
+	for (graphics_point_t bitmap_y = 0; bitmap_y < bitmap_height; bitmap_y++) {
 		draw_x = x + left_shift;
-		for (uint8_t bitmap_x = 0; bitmap_x < bitmap_width; bitmap_x++) {
+		for (graphics_point_t bitmap_x = 0; bitmap_x < bitmap_width; bitmap_x++) {
 			graphics_color_t background = graphics_get_pixel(draw_x, draw_y);
 			uint8_t alpha =  bitmap_data[(bitmap_y * bitmap_width) + bitmap_x];
 
@@ -231,9 +231,9 @@ void graphics_draw_char(char c, uint8_t x, uint8_t y, const font_t * font, graph
 	}
 }
 
-void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font, graphics_color_t color) {
-	uint8_t current_x = x;
-	uint8_t current_y = y;
+void graphics_draw_text(const char * string, graphics_point_t x, graphics_point_t y, const font_t * font, graphics_color_t color) {
+	graphics_point_t current_x = x;
+	graphics_point_t current_y = y;
 
 	graphics_metrics_t metrics = graphics_measure_text(string, font);
 
@@ -254,7 +254,7 @@ void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font
 		uint8_t advance_width = character_data[4];
 		// uint8_t advance_height = character_data[5];
 
-		uint8_t bitmap_y = current_y + (metrics.height - bitmap_height);
+		graphics_point_t bitmap_y = current_y + (metrics.height - bitmap_height);
 
 		if (first) {
 			// first character of string, offset its left shift
@@ -270,7 +270,7 @@ void graphics_draw_text(char * string, uint8_t x, uint8_t y, const font_t * font
 	}
 }
 
-void graphics_draw_icon(uint8_t x, uint8_t y, const icon_t * icon) {
+void graphics_draw_icon(graphics_point_t x, graphics_point_t y, const icon_t * icon) {
 	for (size_t y_iter = 0; y_iter < icon->height; y_iter++) {
 		for (size_t x_iter = 0; x_iter < icon->width; x_iter++) {
 			uint16_t data_index = 2 * ((y_iter * icon->width) + x_iter);

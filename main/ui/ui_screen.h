@@ -19,6 +19,8 @@ typedef struct ui_screen {
 	list_t * bg;
 	list_t * fg;
 
+	void * list; // HACK: this is a void * instead of the ui_item_t * it should be
+
 	void (*update)(struct ui_screen * screen);
 	void (*draw)(struct ui_screen * screen);
 

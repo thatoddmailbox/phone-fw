@@ -8,8 +8,8 @@
 #include "ui/ui_screen.h"
 
 typedef struct ui_item {
-	uint8_t x, y;
-	uint8_t w, h;
+	graphics_point_t x, y;
+	graphics_point_t w, h;
 
 	bool can_focus;
 	bool focus;

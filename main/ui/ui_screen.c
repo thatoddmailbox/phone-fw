@@ -2,10 +2,18 @@
 
 #include "ui/ui_item.h"
 
+#include "ui/ui_list.h"
+
 #include "graphics.h"
 #include "font/font.h"
 
 static void ui_screen_shift_focus(ui_screen_t * screen, int8_t direction) {
+	if (screen->list) {
+		// there's a list absorbing all of the focus events
+		ui_list_shift_focus(screen, (ui_item_t *) screen->list, direction);
+		return;
+	}
+
 	// find what's currently focused and move to the next/previous item
 	list_item_t * list_entry;
 	bool found_focused = false;
@@ -58,6 +66,12 @@ static void ui_screen_shift_focus(ui_screen_t * screen, int8_t direction) {
 }
 
 static void ui_screen_select(ui_screen_t * screen) {
+	if (screen->list) {
+		// there's a list absorbing all of the focus events
+		ui_list_select(screen, (ui_item_t *) screen->list);
+		return;
+	}
+
 	// find what's currently focused
 	list_item_t * list_entry;
 
@@ -97,6 +111,11 @@ void ui_screen_process_event(ui_screen_t * screen, ui_event_t * event) {
 }
 
 void ui_screen_update(ui_screen_t * screen) {
+	if (screen->list) {
+		ui_item_t * list = (ui_item_t *) screen->list;
+		list->update(list, screen);
+	}
+
 	if (screen->update) {
 		screen->update(screen);
 	}
@@ -106,6 +125,11 @@ void ui_screen_draw(ui_screen_t * screen) {
 	list_item_t * list_entry;
 
 	graphics_fill_rect(0, 0, GRAPHICS_WIDTH, GRAPHICS_HEIGHT, screen->bg_color);
+
+	if (screen->list) {
+		ui_item_t * list = (ui_item_t *) screen->list;
+		list->draw(list, screen);
+	}
 
 	bool show_back = true;
 
