@@ -33,7 +33,11 @@ static void input_handle_scroll(uint8_t direction) {
 }
 
 void input_step() {
+#if HW_VERSION == EVAL_HW
 	uint8_t state = mcp23008_read_register(MCP23008_GPIO);
+#else
+	uint8_t state = pcal6416_read_register(PCAL6416_INPUT_0);
+#endif
 	uint8_t changes = input_last_state ^ state;
 
 	if (changes & INPUT_SELECT) { input_handle_change(state, INPUT_SELECT); }

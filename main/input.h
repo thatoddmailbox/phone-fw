@@ -1,6 +1,9 @@
 #ifndef _INPUT_H
 #define _INPUT_H
 
+#include "device/mcp23008.h"
+#include "device/pcal6416.h"
+
 // must match UI_BUTTON_* in ui/ui_event.h!
 #define INPUT_SELECT (1 << 0)
 #define INPUT_DOWN (1 << 1)

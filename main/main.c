@@ -21,7 +21,10 @@
 #include "device/m26.h"
 #include "device/m26_transport.h"
 #include "device/mcp23008.h"
+#include "device/pcal6416.h"
 #include "device/st7735s.h"
+
+#include "hwconfig.h"
 
 #include "ui/ui.h"
 
@@ -40,7 +43,11 @@ void app_main() {
 
 	// start up ui stuff first
 	st7735s_init();
+#if HW_VERSION == EVAL_HW
 	mcp23008_init();
+#else
+	pcal6416_init();
+#endif
 	input_init();
 	graphics_init();
 	ui_init();

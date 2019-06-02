@@ -1,0 +1,46 @@
+#ifndef _DEVICE_PCAL6416_H
+#define _DEVICE_PCAL6416_H
+
+#include <stdint.h>
+
+#include <driver/i2c.h>
+
+#define PCAL6416_ADDRESS 0b01000000
+
+#define PCAL6416_INPUT_0 0x00
+#define PCAL6416_INPUT_1 0x01
+#define PCAL6416_OUTPUT_0 0x02
+#define PCAL6416_OUTPUT_1 0x03
+#define PCAL6416_INVERT_0 0x04
+#define PCAL6416_INVERT_1 0x05
+#define PCAL6416_CONFIG_0 0x06
+#define PCAL6416_CONFIG_1 0x07
+#define PCAL6416_OUTPUT_0_LOW 0x40
+#define PCAL6416_OUTPUT_0_HIGH 0x41
+#define PCAL6416_OUTPUT_1_LOW 0x42
+#define PCAL6416_OUTPUT_1_HIGH 0x43
+#define PCAL6416_INPUT_LATCH_0 0x44
+#define PCAL6416_INPUT_LATCH_1 0x45
+#define PCAL6416_PULL_ENABLE_0 0x46
+#define PCAL6416_PULL_ENABLE_1 0x47
+#define PCAL6416_PULL_SELECT_0 0x48
+#define PCAL6416_PULL_SELECT_1 0x49
+#define PCAL6416_INTERRUPT_MASK_0 0x4A
+#define PCAL6416_INTERRUPT_MASK_1 0x4B
+#define PCAL6416_INTERRUPT_STATUS_0 0x4C
+#define PCAL6416_INTERRUPT_STATUS_1 0x4D
+#define PCAL6416_OUTPUT_PORT_CONFIG 0x4F
+
+#define PCAL6416_FREQ 100000
+#define PCAL6416_I2C I2C_NUM_0
+#define PCAL6416_SCL 25
+#define PCAL6416_SDA 26
+
+void pcal6416_init();
+
+uint8_t pcal6416_read_register(uint8_t reg);
+void pcal6416_write_register(uint8_t reg, uint8_t data);
+
+void pcal6416_test();
+
+#endif

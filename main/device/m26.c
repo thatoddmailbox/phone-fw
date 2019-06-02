@@ -34,10 +34,15 @@ void m26_init() {
 	m26_mutex = xSemaphoreCreateMutexStatic(&m26_mutex_buffer);
 	configASSERT(m26_mutex);
 
+#if HW_VERSION == EVAL_HW
 	// set up pwrkey gpio
     gpio_pad_select_gpio(M26_PWRKEY);
 	gpio_set_direction(M26_PWRKEY, GPIO_MODE_OUTPUT);
 	gpio_set_level(M26_PWRKEY, 1);
+#else
+	pcal6416_write_register(PCAL6416_CONFIG_1, 0b01111111);
+	pcal6416_write_register(PCAL6416_OUTPUT_1, 0b10000000);
+#endif
 	
 	// set up uart
 	const int uart_buffer_size = (1024 * 2);
@@ -68,9 +73,17 @@ void m26_init() {
 	if (strlen(line_buffer) == 0) {
 		// it didn't reply so probably it's off
 		ESP_LOGI(M26_TAG, "it's off, toggling pwrkey\n");
+#if HW_VERSION == EVAL_HW
 		gpio_set_level(M26_PWRKEY, 0);
+#else
+		pcal6416_write_register(PCAL6416_OUTPUT_1, 0b10000000);
+#endif
 		vTaskDelay(1100 / portTICK_PERIOD_MS);
+#if HW_VERSION == EVAL_HW
 		gpio_set_level(M26_PWRKEY, 1);
+#else
+		pcal6416_write_register(PCAL6416_OUTPUT_1, 0b00000000);
+#endif
 		vTaskDelay(4000 / portTICK_PERIOD_MS);
 		vTaskDelay(4000 / portTICK_PERIOD_MS);
 	}

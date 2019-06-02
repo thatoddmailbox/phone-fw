@@ -12,6 +12,10 @@
 
 #include "driver/uart.h"
 
+#include "device/pcal6416.h"
+
+#include "hwconfig.h"
+
 /*
  * pinout
  */
