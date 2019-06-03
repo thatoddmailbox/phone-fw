@@ -42,10 +42,6 @@ void ui_status_draw() {
 		battery_level = 5;
 	}
 
-	ESP_LOGI("qwer", "voltage %d", voltage);
-	ESP_LOGI("qwer", "percentage %d", percentage);
-	ESP_LOGI("qwer", "level %d", battery_level);
-
 	current_x -= 2;
 	current_x -= 5;
 	ui_status_draw_battery(current_x, 1, battery_level);

@@ -15,11 +15,8 @@ static void ui_screen_shift_focus(ui_screen_t * screen, int8_t direction) {
 	if (screen->list) {
 		// there's a list absorbing all of the focus events
 		if (!ui_list_shift_focus(screen, (ui_item_t *) screen->list, direction)) {
-			ESP_LOGI("ui_screen", "list bad");
-
 			// it didn't move, is there a back button?
 			if (screen->go_back) {
-				ESP_LOGI("ui_screen", "focus back");
 				// there is, focus on that
 				screen->back_focused = true;
 
