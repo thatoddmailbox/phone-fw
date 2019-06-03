@@ -28,6 +28,7 @@
 #include "hwconfig.h"
 
 #include "ui/ui.h"
+#include "ui/ui_lock.h"
 
 #include "watcher/l80_watcher.h"
 #include "watcher/m26_watcher.h"
@@ -39,6 +40,10 @@ void app_main() {
         ret = nvs_flash_init();
     }
 	ESP_ERROR_CHECK(ret);
+
+	// TODO: not hardcode this
+	setenv("TZ", "EST5EDT,M3.2.0/2,M11.1.0", 1);
+	tzset();
 
 	// start up ui stuff first
 #if HW_VERSION == EVAL_HW
@@ -62,20 +67,6 @@ void app_main() {
 	m26_init();
 	l80_init();
 
-	// start watcher tasks
-	m26_watcher_start();
-	l80_watcher_start();
-
-	app_init();
-
-	app_launch.start();
-
-	while (1) {
-		input_step();
-		ui_step();
-
-		vTaskDelay(1);
-	}
 
 	// talk to m26
 
@@ -94,5 +85,20 @@ void app_main() {
 		free(op);
 	} else {
 		ESP_LOGI("hi", "operator = null");
+	}
+
+	// start watcher tasks
+	m26_watcher_start();
+	l80_watcher_start();
+
+	app_init();
+
+	app_launch.start();
+
+	while (1) {
+		input_step();
+		ui_step();
+
+		vTaskDelay(1);
 	}
 }

@@ -1,5 +1,7 @@
 #include "ui/ui_status.h"
 
+static uint8_t ui_status_last_minute = 0;
+
 static void ui_status_draw_signal_bars(uint8_t x, uint8_t y, uint8_t amount) {
 	if (amount >= 1) { graphics_fill_rect(x, y + 6, 2, 2, GRAPHICS_COLOR_WHITE); }
 	if (amount >= 2) { graphics_fill_rect(x + 3, y + 4, 2, 4, GRAPHICS_COLOR_WHITE); }
@@ -21,13 +23,36 @@ static void ui_status_draw_battery(uint8_t x, uint8_t y, uint8_t amount) {
 	graphics_fill_rect(x + 1, y + 2 + (5 - amount), 3, amount, GRAPHICS_COLOR_WHITE);
 }
 
+static struct tm * ui_status_get_time() {
+	time_t rawtime;
+
+	time(&rawtime);
+	return localtime(&rawtime);
+}
+
 bool ui_status_dirty() {
-	return atomic_load(&m26_watcher_dirty);
+	if (atomic_load(&m26_watcher_dirty)) {
+		return true;
+	} else {
+		struct tm * current_time = ui_status_get_time();
+		if (current_time->tm_min != ui_status_last_minute) {
+			return true;
+		}
+		return false;
+	}
 }
 
 void ui_status_draw() {
 	graphics_fill_rect(0, 0, GRAPHICS_WIDTH, UI_STATUS_HEIGHT, GRAPHICS_COLOR_BLACK);
-	graphics_draw_text("12:43", 1, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
+
+	struct tm * current_time = ui_status_get_time();
+	if (current_time->tm_hour > 12) {
+		current_time->tm_hour = current_time->tm_hour - 12;
+	}
+	char time_str[6];
+	snprintf(time_str, 6, "%d:%02d", current_time->tm_hour, current_time->tm_min);
+
+	graphics_draw_text(time_str, 1, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
 
 	uint8_t registration = atomic_load(&m26_watcher_registration);
 	uint8_t signal = atomic_load(&m26_watcher_signal);

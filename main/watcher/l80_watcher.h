@@ -7,7 +7,9 @@
 
 #include <esp_log.h>
 
+#include <sys/time.h>
 #include <stdatomic.h>
+#include <time.h>
 
 #include "external/minmea.h"
 

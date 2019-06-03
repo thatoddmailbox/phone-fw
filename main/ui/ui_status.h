@@ -2,6 +2,7 @@
 #define _UI_STATUS_H
 
 #include <stdatomic.h>
+#include <time.h>
 
 #include "graphics.h"
 
