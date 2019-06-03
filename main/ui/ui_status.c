@@ -7,6 +7,20 @@ static void ui_status_draw_signal_bars(uint8_t x, uint8_t y, uint8_t amount) {
 	if (amount >= 4) { graphics_fill_rect(x + 9, y, 2, 8, GRAPHICS_COLOR_WHITE); }
 }
 
+static void ui_status_draw_battery(uint8_t x, uint8_t y, uint8_t amount) {
+	// top thingy
+	graphics_fill_rect(x + 1, y, 3, 1, GRAPHICS_COLOR_WHITE);
+
+	// main outline
+	graphics_fill_rect(x, y + 1, 5, 1, GRAPHICS_COLOR_WHITE);
+	graphics_fill_rect(x, y + 1, 1, 7, GRAPHICS_COLOR_WHITE);
+	graphics_fill_rect(x + 4, y + 1, 1, 7, GRAPHICS_COLOR_WHITE);
+	graphics_fill_rect(x, y + 7, 5, 1, GRAPHICS_COLOR_WHITE);
+
+	// fill with level
+	graphics_fill_rect(x + 1, y + 2 + (5 - amount), 3, amount, GRAPHICS_COLOR_WHITE);
+}
+
 bool ui_status_dirty() {
 	return atomic_load(&m26_watcher_dirty);
 }
@@ -17,6 +31,26 @@ void ui_status_draw() {
 
 	uint8_t registration = atomic_load(&m26_watcher_registration);
 	uint8_t signal = atomic_load(&m26_watcher_signal);
+	uint16_t voltage = atomic_load(&m26_watcher_voltage);
+
+	graphics_point_t current_x = GRAPHICS_WIDTH;
+
+	// from jauch datasheet: low voltage = 3.0 v, high voltage = 4.2 v
+	uint8_t percentage = (uint8_t) ((((double) voltage - 3000) / ((double) (4200 - 3000))) * 100);
+	uint8_t battery_level = (percentage + 20) / 20;
+	if (battery_level > 5) {
+		battery_level = 5;
+	}
+
+	ESP_LOGI("qwer", "voltage %d", voltage);
+	ESP_LOGI("qwer", "percentage %d", percentage);
+	ESP_LOGI("qwer", "level %d", battery_level);
+
+	current_x -= 2;
+	current_x -= 5;
+	ui_status_draw_battery(current_x, 1, battery_level);
+
+	current_x -= 2;
 
 	if (registration == M26_CREG_REGISTERED_NORMAL || registration == M26_CREG_REGISTERED_ROAMING) {
 		int8_t rssi = -113;
@@ -38,14 +72,21 @@ void ui_status_draw() {
 			bars = 2;
 		}
 
-		graphics_draw_text("2G", GRAPHICS_WIDTH - 13 - 2, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
-		ui_status_draw_signal_bars(GRAPHICS_WIDTH - 13 - 2 - 2 - 11, 1, bars);
+		current_x -= 13;
+		graphics_draw_text("2G", current_x, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
+
+		current_x -= 2;
+		current_x -= 11;
+		ui_status_draw_signal_bars(current_x, 1, bars);
 	} else if (registration == M26_CREG_NOT_REGISTERED_SEARCHING) {
-		graphics_draw_text("Searching...", GRAPHICS_WIDTH - 62 - 2, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
+		current_x -= 62;
+		graphics_draw_text("Searching...", current_x, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
 	} else if (registration == M26_CREG_NOT_REGISTERED) {
-		graphics_draw_text("No signal", GRAPHICS_WIDTH - 52 - 2, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
+		current_x -= 52;
+		graphics_draw_text("No signal", current_x, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
 	} else {
-		graphics_draw_text("Error", GRAPHICS_WIDTH - 32 - 2, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
+		current_x -= 32;
+		graphics_draw_text("Error", current_x, 1, &font_source_sans_12, GRAPHICS_COLOR_WHITE);
 	}
 
 	atomic_store(&m26_watcher_dirty, false);
