@@ -38,9 +38,7 @@ void app_main() {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-	ESP_ERROR_CHECK( ret );
-
-	ESP_LOGI("hi", "setting stuff up");
+	ESP_ERROR_CHECK(ret);
 
 	// start up ui stuff first
 #if HW_VERSION == EVAL_HW
@@ -72,16 +70,9 @@ void app_main() {
 
 	app_launch.start();
 
-	bool yay = true;
-
 	while (1) {
 		input_step();
 		ui_step();
-
-		if (yay) {
-			// debug_send_buffer(graphics_buffer, sizeof(graphics_buffer));
-			yay = false;
-		}
 
 		vTaskDelay(1);
 	}
