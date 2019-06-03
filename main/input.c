@@ -17,9 +17,24 @@ static void input_handle_change(uint8_t current_state, uint8_t button) {
 		event_type = UI_EVENT_TYPE_BUTTON_UP;
 	}
 
+	uint8_t mapped_button = button;
+
+#if HW_VERSION != EVAL_HW
+	// buttons must be remapped on non-eval boards
+	if (button == INPUT_DOWN) {
+		mapped_button = INPUT_RIGHT;
+	} else if (button == INPUT_RIGHT) {
+		mapped_button = INPUT_UP;
+	} else if (button == INPUT_UP) {
+		mapped_button = INPUT_LEFT;
+	} else if (button == INPUT_LEFT) {
+		mapped_button = INPUT_DOWN;
+	}
+#endif
+
 	ui_event_t event = {
 		.event_type = event_type,
-		.event_data = button
+		.event_data = mapped_button
 	};
 	ui_push_event(event);
 }
