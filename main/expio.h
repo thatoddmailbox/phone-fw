@@ -19,6 +19,7 @@
 
 void expio_init();
 void expio_set_direction(uint8_t pin, uint8_t direction);
+void expio_set_pullup(uint8_t pin, bool on);
 uint8_t expio_get_level(uint8_t pin);
 void expio_set_level(uint8_t pin, uint8_t level);
 

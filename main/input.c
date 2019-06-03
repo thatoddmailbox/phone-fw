@@ -5,19 +5,36 @@
 const char * INPUT_TAG = "input";
 
 uint8_t input_last_state = 0xFF;
+uint8_t input_last_state_b = 0xFF;
 uint8_t input_last_tick = 0;
 
 void input_init() {
+	// all inputs
+	pcal6416_write_register(PCAL6416_CONFIG_0, 0b1111111);
 
+	// enable pullups
+	pcal6416_write_register(PCAL6416_PULL_ENABLE_0, 0b1111111);
+	pcal6416_write_register(PCAL6416_PULL_SELECT_0, 0b1111111);
+
+	// enable interrupts whenever a pin flips
+	// pcal6416_write_register(PCAL6416_GPINTEN, 0b1111111);
+	// pcal6416_write_register(PCAL6416_INTCON, 0b00000000);
+
+	expio_set_direction(9 - 8, EXPIO_INPUT);
+	expio_set_direction(10 - 8, EXPIO_INPUT);
+	expio_set_direction(11 - 8, EXPIO_INPUT);
+	expio_set_pullup(9 - 8, true);
+	expio_set_pullup(10 - 8, true);
+	expio_set_pullup(11 - 8, true);
 }
 
-static void input_handle_change(uint8_t current_state, uint8_t button) {
+static void input_handle_change(uint16_t current_state, uint16_t button) {
 	uint8_t event_type = UI_EVENT_TYPE_BUTTON_DOWN;
 	if (current_state & button) {
 		event_type = UI_EVENT_TYPE_BUTTON_UP;
 	}
 
-	uint8_t mapped_button = button;
+	uint16_t mapped_button = button;
 
 #if HW_VERSION != EVAL_HW
 	// buttons must be remapped on non-eval boards
@@ -39,7 +56,7 @@ static void input_handle_change(uint8_t current_state, uint8_t button) {
 	ui_push_event(event);
 }
 
-static void input_handle_scroll(uint8_t direction) {
+static void input_handle_scroll(uint16_t direction) {
 	ui_event_t event = {
 		.event_type = UI_EVENT_TYPE_SCROLL,
 		.event_data = direction
@@ -79,6 +96,17 @@ void input_step() {
 			}
 		}
 	}
+
+#if HW_VERSION != EVAL_HW
+	uint16_t state_b = pcal6416_read_register(PCAL6416_INPUT_1);
+	uint8_t changes_b = input_last_state_b ^ state_b;
+
+	if (changes_b & (INPUT_LOCK >> 8)) { input_handle_change(state_b << 8, INPUT_LOCK); }
+	if (changes_b & (INPUT_VOL_UP >> 8)) { input_handle_change(state_b << 8, INPUT_VOL_UP); }
+	if (changes_b & (INPUT_VOL_DOWN >> 8)) { input_handle_change(state_b << 8, INPUT_VOL_DOWN); }
+
+	input_last_state_b = state_b;
+#endif
 
 	input_last_state = state;
 }

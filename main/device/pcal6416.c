@@ -12,17 +12,6 @@ void pcal6416_init() {
 	i2c_param_config(PCAL6416_I2C, &conf);
 
 	i2c_driver_install(PCAL6416_I2C, conf.mode, 0, 0, 0);
-
-	// all inputs
-	pcal6416_write_register(PCAL6416_CONFIG_0, 0b1111111);
-
-	// enable pullups
-	pcal6416_write_register(PCAL6416_PULL_ENABLE_0, 0b1111111);
-	pcal6416_write_register(PCAL6416_PULL_SELECT_0, 0b1111111);
-
-	// enable interrupts whenever a pin flips
-	// pcal6416_write_register(PCAL6416_GPINTEN, 0b1111111);
-	// pcal6416_write_register(PCAL6416_INTCON, 0b00000000);
 }
 
 uint8_t pcal6416_read_register(uint8_t reg) {

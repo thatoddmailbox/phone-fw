@@ -15,6 +15,9 @@
 #define INPUT_SCROLL_CW INPUT_A
 #define INPUT_SCROLL_CCW INPUT_B
 #define INPUT_BATT_STAT (1 << 7)
+#define INPUT_LOCK (1 << 9)
+#define INPUT_VOL_UP (1 << 10)
+#define INPUT_VOL_DOWN (1 << 11)
 
 void input_init();
 void input_step();
