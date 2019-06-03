@@ -37,12 +37,17 @@ void st7735s_init() {
 	 */
     gpio_pad_select_gpio(ST7735S_CS);
     gpio_pad_select_gpio(ST7735S_DC);
-    gpio_pad_select_gpio(ST7735S_BL);
 	gpio_set_direction(ST7735S_CS, GPIO_MODE_OUTPUT);
 	gpio_set_direction(ST7735S_DC, GPIO_MODE_OUTPUT);
-	gpio_set_direction(ST7735S_BL, GPIO_MODE_OUTPUT);
 
+#if HW_VERSION == EVAL_HW
+    gpio_pad_select_gpio(ST7735S_BL);
+	gpio_set_direction(ST7735S_BL, GPIO_MODE_OUTPUT);
 	gpio_set_level(ST7735S_BL, 0);
+#else
+	expio_set_direction(EXPIO_LCD_BL, EXPIO_OUTPUT);
+	expio_set_level(EXPIO_LCD_BL, 1);
+#endif
 
 	ESP_LOGI(ST7735S_TAG, "gpio done");
 

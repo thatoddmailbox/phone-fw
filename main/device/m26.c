@@ -40,8 +40,8 @@ void m26_init() {
 	gpio_set_direction(M26_PWRKEY, GPIO_MODE_OUTPUT);
 	gpio_set_level(M26_PWRKEY, 1);
 #else
-	pcal6416_write_register(PCAL6416_CONFIG_1, 0b01111111);
-	pcal6416_write_register(PCAL6416_OUTPUT_1, 0b10000000);
+	expio_set_direction(EXPIO_GSM_PWRKEY, EXPIO_OUTPUT);
+	expio_set_level(EXPIO_GSM_PWRKEY, 1);
 #endif
 	
 	// set up uart
@@ -76,13 +76,13 @@ void m26_init() {
 #if HW_VERSION == EVAL_HW
 		gpio_set_level(M26_PWRKEY, 0);
 #else
-		pcal6416_write_register(PCAL6416_OUTPUT_1, 0b10000000);
+		expio_set_level(EXPIO_GSM_PWRKEY, 0);
 #endif
 		vTaskDelay(1100 / portTICK_PERIOD_MS);
 #if HW_VERSION == EVAL_HW
 		gpio_set_level(M26_PWRKEY, 1);
 #else
-		pcal6416_write_register(PCAL6416_OUTPUT_1, 0b00000000);
+		expio_set_level(EXPIO_GSM_PWRKEY, 1);
 #endif
 		vTaskDelay(4000 / portTICK_PERIOD_MS);
 		vTaskDelay(4000 / portTICK_PERIOD_MS);

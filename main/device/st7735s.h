@@ -11,6 +11,9 @@
 
 #include <driver/spi_master.h>
 
+#include "expio.h"
+#include "hwconfig.h"
+
 #define ST7735S_CS 19
 #define ST7735S_SDA 22
 #define ST7735S_SCL 21

@@ -11,6 +11,7 @@
 #include <nvs_flash.h>
 
 #include "debug.h"
+#include "expio.h"
 #include "graphics.h"
 #include "input.h"
 
@@ -42,12 +43,13 @@ void app_main() {
 	ESP_LOGI("hi", "setting stuff up");
 
 	// start up ui stuff first
-	st7735s_init();
 #if HW_VERSION == EVAL_HW
 	mcp23008_init();
 #else
 	pcal6416_init();
+	expio_init();
 #endif
+	st7735s_init();
 	input_init();
 	graphics_init();
 	ui_init();

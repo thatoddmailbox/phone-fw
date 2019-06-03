@@ -8,13 +8,14 @@
 #include <freertos/task.h>
 #include <freertos/event_groups.h>
 
-#include "esp_log.h"
+#include <esp_log.h>
 
-#include "driver/uart.h"
+#include <driver/uart.h>
+
+#include "expio.h"
+#include "hwconfig.h"
 
 #include "device/pcal6416.h"
-
-#include "hwconfig.h"
 
 /*
  * pinout
