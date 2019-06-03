@@ -4,8 +4,9 @@ const char * M26_TAG = "m26";
 
 const char * command_at = "AT\n";
 const char * command_ate0 = "ATE0\n";
-const char * command_at_ccid = "AT+CCID\n";
 const char * command_at_cmee_2 = "AT+CMEE=2\n";
+const char * command_at_cbc = "AT+CBC\n";
+const char * command_at_ccid = "AT+CCID\n";
 const char * command_at_creg = "AT+CREG?\n";
 const char * command_at_csq = "AT+CSQ\n";
 const char * command_at_cops = "AT+COPS?\n";
@@ -228,6 +229,25 @@ void m26_get_ccid(char * ccid) {
 
 	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
 	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+}
+
+uint16_t m26_get_cbc() {
+	m26_send_command(command_at_cbc);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // +CBC: 0,0,<voltage>
+
+	uint16_t voltage = 0;
+	
+	if (strlen(line_buffer) >= (strlen("+CBC: 0,0,0") )) {
+		char * comma_before_voltage = strchr(line_buffer + strlen("+CBC: 0,"), ',');
+		voltage = atoi(comma_before_voltage + 1);
+	}
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	return voltage;
 }
 
 uint8_t m26_get_creg() {

@@ -20,9 +20,13 @@ static void m26_watcher_task(void * pvParameters) {
 		uint8_t csq = m26_get_csq();
 		ESP_LOGI(TAG_M26_WATCHER, "csq %d", csq);
 
+		uint16_t cbc = m26_get_cbc();
+		ESP_LOGI(TAG_M26_WATCHER, "cbc %d", cbc);
+
 		atomic_store(&m26_watcher_dirty, true);
 		atomic_store(&m26_watcher_registration, creg);
 		atomic_store(&m26_watcher_signal, csq);
+		atomic_store(&m26_watcher_voltage, cbc);
 
 		// m26_gprs_activate("hologram");
 		// m26_dns_set("8.8.8.8", "8.8.8.4");
@@ -45,6 +49,7 @@ void m26_watcher_start() {
 	atomic_init(&m26_watcher_dirty, false);
 	atomic_init(&m26_watcher_registration, M26_CREG_NOT_REGISTERED_SEARCHING);
 	atomic_init(&m26_watcher_signal, 99);
+	atomic_init(&m26_watcher_voltage, 0);
 
 	ESP_LOGI(TAG_M26_WATCHER, "Starting watcher task...");
 

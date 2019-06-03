@@ -59,6 +59,7 @@ void m26_send_command(const char * command);
 void m26_send_single_reply(const char * command);
 
 void m26_get_ccid(char * ccid); // must be at least 21 bytes long
+uint16_t m26_get_cbc();
 uint8_t m26_get_creg();
 uint8_t m26_get_csq();
 void m26_get_imei(char * imei); // must be at least 16 bytes long

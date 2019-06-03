@@ -14,6 +14,7 @@
 atomic_bool m26_watcher_dirty;
 atomic_uint_fast8_t m26_watcher_registration;
 atomic_uint_fast8_t m26_watcher_signal;
+atomic_uint_fast16_t m26_watcher_voltage;
 
 void m26_watcher_start();
 
