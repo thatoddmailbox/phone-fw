@@ -32,6 +32,7 @@
 // line buffer cannot be larger than reply buffer!!
 #define M26_LINE_BUFFER_SIZE 256
 #define M26_RX_BUFFER_SIZE 256
+#define M26_SMS_BUFFER_SIZE 256
 
 /*
  * other
@@ -50,6 +51,15 @@
 
 extern SemaphoreHandle_t m26_mutex;
 
+/*
+ * structs
+ */
+typedef struct {
+    char * from;
+    char * message;
+    char * timestamp;
+} m26_sms_t;
+
 void m26_init();
 
 size_t m26_get_line(uint16_t timeout);
@@ -64,6 +74,10 @@ uint8_t m26_get_creg();
 uint8_t m26_get_csq();
 void m26_get_imei(char * imei); // must be at least 16 bytes long
 char * m26_get_operator();
+
+uint16_t m26_get_sms_count();
+m26_sms_t * m26_get_sms(uint8_t index);
+void m26_sms_free(m26_sms_t * sms);
 
 void m26_gprs_activate(const char * apn);
 void m26_gprs_deactivate();

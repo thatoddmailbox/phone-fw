@@ -87,6 +87,19 @@ void app_main() {
 		ESP_LOGI("hi", "operator = null");
 	}
 
+	uint16_t count = m26_get_sms_count();
+	ESP_LOGI("hi", "count %d", count);
+
+	m26_sms_t * sms = m26_get_sms(2);
+	if (sms) {
+		ESP_LOGI("hi", "from = %s", sms->from);
+		ESP_LOGI("hi", "timestamp = %s", sms->timestamp);
+		ESP_LOGI("hi", "message = %s", sms->message);
+		m26_sms_free(sms);
+	} else {
+		ESP_LOGI("hi", "sms = null");
+	}
+
 	// start watcher tasks
 	m26_watcher_start();
 	l80_watcher_start();

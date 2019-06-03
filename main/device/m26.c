@@ -4,12 +4,15 @@ const char * M26_TAG = "m26";
 
 const char * command_at = "AT\n";
 const char * command_ate0 = "ATE0\n";
-const char * command_at_cmee_2 = "AT+CMEE=2\n";
 const char * command_at_cbc = "AT+CBC\n";
 const char * command_at_ccid = "AT+CCID\n";
+const char * command_at_cmee_2 = "AT+CMEE=2\n";
+const char * command_at_cmgf_1 = "AT+CMGF=1\n";
+const char * command_at_cnmi_0_0_0_0_0 = "AT+CNMI=0,0,0,0,0\n";
+const char * command_at_cops = "AT+COPS?\n";
+const char * command_at_cpms = "AT+CPMS?\n";
 const char * command_at_creg = "AT+CREG?\n";
 const char * command_at_csq = "AT+CSQ\n";
-const char * command_at_cops = "AT+COPS?\n";
 const char * command_at_gsn = "AT+GSN\n";
 const char * command_at_qiact = "AT+QIACT\n";
 const char * command_at_qiclose = "AT+QICLOSE\n";
@@ -26,6 +29,8 @@ char line_buffer[M26_LINE_BUFFER_SIZE];
 char tx_buffer[M26_TX_BUFFER_SIZE];
 char rx_buffer[M26_RX_BUFFER_SIZE];
 size_t rx_buffer_length = 0;
+
+char sms_buffer[M26_SMS_BUFFER_SIZE];
 
 SemaphoreHandle_t m26_mutex = NULL;
 StaticSemaphore_t m26_mutex_buffer;
@@ -120,6 +125,18 @@ void m26_init() {
 
 	// AT+CMEE=2 - verbose error
 	m26_send_command(command_at_cmee_2);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	// AT+CMGF=1 - text mode for sms
+	m26_send_command(command_at_cmgf_1);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	// AT+CNMI=0,0,0,0,0 - disable all sms URCs
+	m26_send_command(command_at_cnmi_0_0_0_0_0);
 	vTaskDelay(10 / portTICK_PERIOD_MS);
 	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
 	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
@@ -319,6 +336,95 @@ char * m26_get_operator() {
 	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
 
 	return result;
+}
+
+uint16_t m26_get_sms_count() {
+	m26_send_command(command_at_cpms);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // +CPMS: "SM",0,50,"SM",0,50,"SM",0,50
+
+	uint16_t count = 0;
+
+	if (strlen(line_buffer) >= (strlen("+CPMS: \"SM\",0") )) {
+		char * count_start = line_buffer + strlen("+CPMS: \"SM\",");
+		char * comma_after_count = strchr(line_buffer + strlen("+CPMS: \"SM\","), ',');
+		*comma_after_count = '\0';
+		count = atoi(count_start);
+	}
+
+	m26_get_line(M26_DEFAULT_TIMEOUT); // blank
+	m26_get_line(M26_DEFAULT_TIMEOUT); // OK
+
+	return count;
+}
+
+m26_sms_t * m26_get_sms(uint8_t index) {
+	snprintf(tx_buffer, M26_TX_BUFFER_SIZE, "AT+CMGR=%d\r\n", index);
+	m26_send_command(tx_buffer);
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+
+	bool got_first_line = false;
+
+	m26_sms_t * sms = calloc(1, sizeof(m26_sms_t));
+	size_t message_size = 0;
+
+	sms_buffer[0] = '\0';
+
+	while (1) {
+		size_t line_size = m26_get_line(M26_DEFAULT_TIMEOUT);
+		if (!got_first_line) {
+			if (strncmp(line_buffer, "+CMGR: ", 7) == 0) {
+				got_first_line = true;
+
+				char * comma_before_from = strchr(line_buffer, ',');
+				char * from_start_quote = comma_before_from + 1;
+				char * from_end_quote = strchr(from_start_quote + 1, '"');
+				size_t from_length = (size_t) (from_end_quote - from_start_quote) - 1;
+
+				sms->from = malloc(from_length + 1);
+				sms->from[from_length] = '\0';
+				memcpy(sms->from, from_start_quote + 1, from_length);
+
+				char * timestamp_start_quote = from_end_quote + strlen("\",\"\",");
+				char * timestamp_end_quote = strchr(timestamp_start_quote + 1, '"');
+				size_t timestamp_length = (size_t) (timestamp_end_quote - timestamp_start_quote) - 1;
+
+				sms->timestamp = malloc(timestamp_length + 1);
+				sms->timestamp[timestamp_length] = '\0';
+				memcpy(sms->timestamp, timestamp_start_quote + 1, timestamp_length);
+			}
+			continue;
+		}
+		if (strncmp(line_buffer, "OK", 2) == 0) {
+			break;
+		} else {
+			// part of the sms i guess
+			memcpy(sms_buffer + message_size, line_buffer, line_size);
+			message_size += line_size + 1;
+			sms_buffer[message_size] = '\n';
+			sms_buffer[message_size + 1] = '\0';
+		}
+	}
+
+	sms->message = malloc(message_size);
+	memcpy(sms->message, sms_buffer, message_size);
+	sms->message[message_size] = '\0';
+
+	return sms;
+}
+
+void m26_sms_free(m26_sms_t * sms) {
+	if (sms->from) {
+		free(sms->from);
+	}
+	if (sms->message) {
+		free(sms->message);
+	}
+	if (sms->timestamp) {
+		free(sms->timestamp);
+	}
+	free(sms);
 }
 
 void m26_gprs_activate(const char * apn) {
