@@ -179,6 +179,12 @@ graphics_metrics_t graphics_measure_text(char * string, const font_t * font) {
 	while (*string) {
 		char c = *string;
 
+		if (c == ' ') {
+			metrics.width += 5;
+			string++;
+			continue;
+		}
+
 		const uint8_t * character_data = font->data + (font->indexes[c - '!']);
 		uint8_t bitmap_height = character_data[3];
 		uint8_t advance_width = character_data[4];
@@ -279,7 +285,7 @@ void graphics_draw_icon(graphics_point_t x, graphics_point_t y, const icon_t * i
 	}
 }
 
-void graphics_blit_bitmap(uint8_t bitmap[ST7735S_WIDTH * ST7735S_HEIGHT]) {
+void graphics_blit_bitmap(const uint8_t bitmap[ST7735S_WIDTH * ST7735S_HEIGHT * 2]) {
 	// this is BAD and relies on the bitmap having been swizzled
 	memcpy(graphics_buffer, bitmap, ST7735S_WIDTH * ST7735S_HEIGHT * 2);
 }

@@ -59,7 +59,7 @@ void graphics_draw_char(char c, graphics_point_t x, graphics_point_t y, const fo
 void graphics_draw_text(const char * string, graphics_point_t x, graphics_point_t y, const font_t * font, graphics_color_t color);
 void graphics_draw_icon(graphics_point_t x, graphics_point_t y, const icon_t * icon);
 
-void graphics_blit_bitmap(uint8_t bitmap[ST7735S_WIDTH * ST7735S_HEIGHT]);
+void graphics_blit_bitmap(const uint8_t bitmap[ST7735S_WIDTH * ST7735S_HEIGHT * 2]);
 
 void graphics_flip();
 
