@@ -1,5 +1,7 @@
 #include "app/launch/main.h"
 
+#include "app/sms/main.h"
+
 const char * APP_LAUNCH_TAG = "launch";
 
 ui_screen_t * app_launch_main;
@@ -9,7 +11,7 @@ static void app_launch_main_activate(ui_list_item_t * list_item, ui_item_t * lis
 	if (strcmp(list_item->label, "Phone") == 0) {
 
 	} else if (strcmp(list_item->label, "SMS") == 0) {
-
+		app_sms.start();
 	} else if (strcmp(list_item->label, "Other") == 0) {
 		ui_set_screen(app_launch_other);
 	}

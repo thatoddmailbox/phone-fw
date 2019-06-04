@@ -401,15 +401,16 @@ m26_sms_t * m26_get_sms(uint8_t index) {
 		} else {
 			// part of the sms i guess
 			memcpy(sms_buffer + message_size, line_buffer, line_size);
-			message_size += line_size + 1;
+			message_size += line_size;
 			sms_buffer[message_size] = '\n';
-			sms_buffer[message_size + 1] = '\0';
+			message_size += 1;
+			sms_buffer[message_size] = '\0';
 		}
 	}
 
-	sms->message = malloc(message_size);
-	memcpy(sms->message, sms_buffer, message_size);
-	sms->message[message_size] = '\0';
+	sms->message = malloc(message_size - 1);
+	memcpy(sms->message, sms_buffer, message_size - 1);
+	sms->message[message_size - 2] = '\0';
 
 	return sms;
 }

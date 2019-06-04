@@ -26,6 +26,7 @@ typedef struct ui_screen {
 
 	void (*update)(struct ui_screen * screen);
 	void (*draw)(struct ui_screen * screen);
+	void (*deinit)(struct ui_screen * screen);
 
 	bool force_redraw;
 } ui_screen_t;

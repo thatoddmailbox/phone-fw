@@ -12,6 +12,9 @@ void ui_init() {
 }
 
 void ui_set_screen(ui_screen_t * screen) {
+	if (ui_current_screen && ui_current_screen->deinit) {
+		ui_current_screen->deinit(ui_current_screen);
+	}
 	ui_current_screen = screen;
 	ui_is_dirty = true;
 }

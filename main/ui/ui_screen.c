@@ -74,8 +74,12 @@ static void ui_screen_shift_focus(ui_screen_t * screen, int8_t direction) {
 
 		if (!found_focused) {
 			// nothing is focused, choose the first item
-			ui_item_t * item = (ui_item_t *) (screen->fg->head)->value;
-			item->focus = true;
+			if (screen->fg && screen->fg->count > 0) {
+				ui_item_t * item = (ui_item_t *) (screen->fg->head)->value;
+				item->focus = true;
+			} else if (screen->go_back) {
+				screen->back_focused = true;
+			}
 		}
 
 		screen->force_redraw = true;
@@ -205,6 +209,7 @@ ui_screen_t * ui_screen_new(char * title) {
 	}
 	screen->update = NULL;
 	screen->draw = NULL;
+	screen->deinit = NULL;
 	screen->bg_color = GRAPHICS_COLOR_WHITE;
 	screen->bg = list_new((void (*)(void *)) ui_item_free);
 	screen->fg = list_new((void (*)(void *)) ui_item_free);

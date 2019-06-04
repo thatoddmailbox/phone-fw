@@ -170,7 +170,7 @@ void graphics_fill_rect(graphics_point_t x, graphics_point_t y, graphics_point_t
 	}
 }
 
-graphics_metrics_t graphics_measure_text(char * string, const font_t * font) {
+graphics_metrics_t graphics_measure_text(const char * string, const font_t * font) {
 	graphics_metrics_t metrics = {
 		.width = 0,
 		.height = 0
@@ -181,6 +181,12 @@ graphics_metrics_t graphics_measure_text(char * string, const font_t * font) {
 
 		if (c == ' ') {
 			metrics.width += 5;
+			string++;
+			continue;
+		}
+
+		if (c == '\n') {
+			metrics.height += 12;
 			string++;
 			continue;
 		}
@@ -250,6 +256,12 @@ void graphics_draw_text(const char * string, graphics_point_t x, graphics_point_
 
 		if (c == ' ') {
 			current_x += 5;
+			string++;
+			continue;
+		}
+
+		if (c == '\n') {
+			current_y += 12;
 			string++;
 			continue;
 		}
