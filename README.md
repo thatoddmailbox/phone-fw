@@ -1,5 +1,5 @@
 # phone-fw
-The firmware portion of a phone I built. You might also want to see [the hardware](https://github.com/thatoddmailbox/phone-hw).
+The firmware portion of a [phone I built](https://github.com/thatoddmailbox/phone). You might also want to see [the hardware](https://github.com/thatoddmailbox/phone-hw).
 
 Unfortunately, while the hardware is somewhat capable, the firmware is rather limited in what it currently can do.
 
